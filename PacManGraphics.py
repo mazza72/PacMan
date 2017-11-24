@@ -1,7 +1,7 @@
 """Functions for the drawing of the game"""
 
 #import spritesheet file
-#import spritesheet
+import spritesheet
 
 #import pygame module
 import pygame
@@ -21,14 +21,15 @@ WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
 WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
 
 def setup():
-    #Initialise pygame
-    pygame.init()
-    pygame.font.init()
 
-    #Create a window of the speicified height and width
+    #Create a window of the speicified height and width.
     display = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     pygame.display.set_caption('Pac-Man demonstration')
     background = pygame.image.load(BACKGROUNDFILE).convert()
+
+    #Create the spritesheets using the spritesheet class.
+    ssMaze = spritesheet.spritesheet("MazeSprites.png")
+    ssGeneral = spritesheet.spritesheet("GeneralSprites.png")
 
     #Create a new font object of the default pygame font, and with the specified font size.
     gamefont = pygame.font.Font(None, FONTSIZE)

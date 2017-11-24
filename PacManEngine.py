@@ -5,11 +5,17 @@ import PacManBoard
 import PacManGraphics
 
 #import required modules
-import sys
+import sys, pygame
 
 class PacMan:
     def __init__(self):
         self.board = PacManBoard.Board()
+
+        #Setup pygame
+        pygame.init()
+        pygame.font.init()
+
+        #Call the graphics function that creates the window and font.
         self.display, self.font, self.background = PacManGraphics.setup()
 
     def gameloop(self):
