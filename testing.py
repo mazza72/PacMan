@@ -1,5 +1,5 @@
 import PacManEngine
 
-game = PacManEngine.PacMan()
+game = PacManEngine.PacManEngine()
 while True:
     game.gameloop()

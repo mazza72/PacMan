@@ -20,29 +20,28 @@ BLACK  = (  0,   0,   0)
 WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
 WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
 
-def setup():
+def setupDisplay():
 
     #Create a window of the speicified height and width.
     display = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     pygame.display.set_caption('Pac-Man demonstration')
     background = pygame.image.load(BACKGROUNDFILE).convert()
 
-    #Create the spritesheets using the spritesheet class.
-    ssMaze = spritesheet.spritesheet("MazeSprites.png")
-    ssGeneral = spritesheet.spritesheet("GeneralSprites.png")
+    #Create the spritesheet using the spritesheet class.
+    gameSprites = spritesheet.spritesheet("GeneralSprites.png")
 
     #Create a new font object of the default pygame font, and with the specified font size.
     gamefont = pygame.font.Font(None, FONTSIZE)
-    return (display, gamefont, background)
+    return (display, gamefont, background, gameSprites)
 
 def drawboard(display, backgroundimage):
     display.fill(BLACK)
     display.blit(backgroundimage, (OUTLINESPACING, OUTLINESPACING))
-    pygame.display.update()
 
-def getEvents():
-    events = pygame.event.get()
-    return events
+def drawPlayer(display, playerx, playery):
+    ssGeneral = spritesheet.spritesheet("GeneralSprites.png") #To remove later
+    pacman = ssGeneral.image_at((454,0,17,16)) #To remove later
+    display.blit(pacman, (playerx,playery))
 
 def mousepos(display): #probably pass in a list of button objects that you can check the coordinates of vs the mousepos
     (mouseX, mouseY) = pygame.mouse.get_pos()
