@@ -38,11 +38,10 @@ def drawboard(display, backgroundimage):
     display.fill(BLACK)
     display.blit(backgroundimage, (OUTLINESPACING, OUTLINESPACING))
 
-def drawPlayer(display, playerx, playery):
-    ssGeneral = spritesheet.spritesheet("GeneralSprites.png") #To remove later
-    pacman = ssGeneral.image_at((454,0,17,16)) #To remove later
-    display.blit(pacman, (playerx,playery))
-
 def mousepos(display): #probably pass in a list of button objects that you can check the coordinates of vs the mousepos
     (mouseX, mouseY) = pygame.mouse.get_pos()
     return mouseX, mouseY
+
+def drawSprite(display, x, y, spriteSheet, spriteLocation):
+    sprite = spriteSheet.image_at(spriteLocation)
+    display.blit(sprite, (x,y))
