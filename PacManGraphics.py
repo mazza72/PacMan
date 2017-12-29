@@ -15,6 +15,8 @@ OUTLINESPACING = 30
 
 #Colour constants
 BLACK  = (  0,   0,   0)
+"""Testing"""
+RED = (255, 0, 0)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.
 WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
@@ -45,3 +47,7 @@ def mousepos(display): #probably pass in a list of button objects that you can c
 def drawSprite(display, x, y, spriteSheet, spriteLocation):
     sprite = spriteSheet.image_at(spriteLocation)
     display.blit(sprite, (x,y))
+
+"""Testing"""
+def drawEdge(display, edge):
+    pygame.draw.rect(display, RED, (edge.x, edge.y, edge.width, edge.length), 0)

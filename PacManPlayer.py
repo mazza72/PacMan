@@ -15,11 +15,11 @@ DOWN2 = (473,49,14,14)
 OPENSPRITES = [RIGHT1, LEFT1, UP1, DOWN1]
 CLOSEDSPRITES = [RIGHT2, LEFT2, UP2, DOWN2]
 
-
 class Player():
     def __init__(self):
-        self.y = 125
-        self.x = 130
+        #Set the starting position of the player
+        self.y = 211
+        self.x = 139
         self.spriteLoc = START
         self.updateCount = 0
 
