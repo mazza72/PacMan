@@ -40,7 +40,8 @@ def drawboard(display, backgroundimage):
     display.fill(BLACK)
     display.blit(backgroundimage, (OUTLINESPACING, OUTLINESPACING))
 
-def mousepos(display): #probably pass in a list of button objects that you can check the coordinates of vs the mousepos
+def mousepos(display):
+    """probably pass in a list of button objects that you can check the coordinates of vs the mousepos"""
     (mouseX, mouseY) = pygame.mouse.get_pos()
     return mouseX, mouseY
 

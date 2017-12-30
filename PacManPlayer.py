@@ -17,13 +17,15 @@ CLOSEDSPRITES = [RIGHT2, LEFT2, UP2, DOWN2]
 
 class Player():
     def __init__(self):
-        #Set the starting position of the player
+        #Set the starting position of the player.
         self.y = 211
         self.x = 139
+        #Set the player's sprite to the starting sprite.
         self.spriteLoc = START
         self.updateCount = 0
 
     def move(self, direction):
+        #Updates the position of the player based on the direction it is moving.
         if direction == "right":
             self.x += 1
             self.updateSprite(0)
@@ -41,8 +43,11 @@ class Player():
             self.updateSprite(3)
 
     def updateSprite(self, direction):
+        #Animates the player sprite.
         self.updateCount += 1
+        #Checks to see if 5 ticks have passed since the last update, to prevent the animation being to quick to see.
         if self.updateCount == 5:
+            #Checks what the existing sprite is, and loads the alternate one.
             if self.spriteLoc in OPENSPRITES:
                 self.spriteLoc = CLOSEDSPRITES[direction]
             else:

@@ -24,6 +24,15 @@ class Board():
                 return False
         return True
 
+    def checkTunnel(self, objToCheck):
+        #Check if a ghost or the player has passed through a tunnel to the other side of the board.
+        #Compare the x coordinate of the object to the left side of the board.
+        if objToCheck.x < 33:
+            objToCheck.x = 248
+        #Compare the x coordinate of the object to the right side of the board.
+        elif objToCheck.x > 248:
+            objToCheck.x = 33
+
 class Edge():
     def __init__(self, x, y, width, length):
         self.x = x

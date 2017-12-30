@@ -64,23 +64,27 @@ class PacManEngine:
             return self.board.checkValidPosition(self.player.x, self.player.y + 1, 14, 14)
 
     def gameloop(self):
-        #get the events that have occurred.
+        #Get the events that have occurred, and check to see if the user wants to quit.
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit(0)
 
+        """Will need to be checked to see if the user is playing"""
         #Check to see if the player wants to move.
         self.getPlayerInput()
 
-        #Draw the board and the player using the functions from the graphics files.
+        #Check to see if the player has moved through a tunnel.
+        self.board.checkTunnel(self.player)
+
+        #Draw the board and the player using the functions from the graphics file.
         PacManGraphics.drawboard(self.display, self.background)
         PacManGraphics.drawSprite(self.display, self.player.x, self.player.y, self.gameSprites, self.player.spriteLoc)
 
         #Sets the maximum framerate to 40 fps.
         self.clock.tick(40)
 
-        """Testing"""
+        """Testing - draw all the edges."""
         for edge in range(len(self.board.edges)):
             PacManGraphics.drawEdge(self.display, self.board.edges[edge])
 
