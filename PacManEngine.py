@@ -81,7 +81,8 @@ class PacManEngine:
         self.clock.tick(40)
 
         """Testing"""
-        PacManGraphics.drawEdge(self.display, self.board.edges[0])
+        for edge in range(len(self.board.edges)):
+            PacManGraphics.drawEdge(self.display, self.board.edges[edge])
 
         #Update the display so the changes are shown.
         pygame.display.update()

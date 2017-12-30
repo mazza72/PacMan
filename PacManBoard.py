@@ -9,7 +9,14 @@ class Board():
         self.bonuses = 2
         """Create a list of Pac-Dot objects and their locations, as well
         as sectioning each section of the board."""
-        self.edges = [Edge(110,250,15,8)]
+        self.edges = [Edge(54,251,70,6), Edge(54,203,22,6), Edge(70,209,6,24), Edge(94,227,6,24), Edge(94,203,30,6), Edge(33,227,19,6),
+        Edge(33,183,3,92), Edge(33,155,43,30), Edge(33,275,224,3), Edge(142,227,6,30), Edge(118,227,54,6), Edge(142,185,6,24), Edge(118,179,54,6), Edge(94,155,6,30),
+        Edge(166,251,70,6), Edge(214,203,22,6), Edge(214,209,6,24), Edge(190,227,6,24), Edge(167,203,30,6), Edge(238,227,19,6),
+        Edge(254,183,3,92), Edge(214,155,43,30), Edge(190,155,6,30),
+        Edge(54,51,22,14), Edge(94,51,30,14), Edge(54,83,22,6), Edge(94,83,6,54), Edge(100,107,24,6),
+        Edge(214,51,22,14), Edge(166,51,30,14), Edge(214,83,22,6), Edge(190,83,6,54), Edge(166,107,24,6),
+        Edge(33,30,224,3), Edge(33,33,3,77), Edge(254,33,3,77), Edge(214,107,43,30), Edge(33,107,43,30),
+        Edge(142,83,6,30), Edge(118,83,54,6), Edge(142,33,6,32), Edge(118,131,18,2), Edge(154,131,18,2), Edge(118,133,2,28), Edge(120,159,52,2), Edge(170,133,2,28)]
 
     def checkValidPosition(self,objx, objy, objwidth, objlen):
         for edge in self.edges:
