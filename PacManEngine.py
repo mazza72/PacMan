@@ -77,6 +77,9 @@ class PacManEngine:
         #Check to see if the player has moved through a tunnel.
         self.board.checkTunnel(self.player)
 
+        #Check to see if the player has eaten any Pac-Dots.
+        self.board.eatDots(self.player.x, self.player.y)
+
         #Draw the board and the player using the functions from the graphics file.
         PacManGraphics.drawboard(self.display, self.background)
         PacManGraphics.drawSprite(self.display, self.player.x, self.player.y, self.gameSprites, self.player.spriteLoc)
@@ -87,6 +90,9 @@ class PacManEngine:
         """Testing - draw all the edges."""
         for edge in range(len(self.board.edges)):
             PacManGraphics.drawEdge(self.display, self.board.edges[edge])
+
+        """Testing"""
+        PacManGraphics.drawPacDots(self.display, self.board.dots)
 
         #Update the display so the changes are shown.
         pygame.display.update()

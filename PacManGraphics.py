@@ -14,7 +14,8 @@ FONTSIZE = 20
 OUTLINESPACING = 30
 
 #Colour constants
-BLACK  = (  0,   0,   0)
+BLACK  = (0,0,0)
+DOTCOLOUR = (88,83,87)
 """Testing"""
 RED = (255, 0, 0)
 
@@ -48,6 +49,11 @@ def mousepos(display):
 def drawSprite(display, x, y, spriteSheet, spriteLocation):
     sprite = spriteSheet.image_at(spriteLocation)
     display.blit(sprite, (x,y))
+
+def drawPacDots(display, dotTable):
+    for dotList in dotTable:
+        for dot in dotList:
+            pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
 
 """Testing"""
 def drawEdge(display, edge):
