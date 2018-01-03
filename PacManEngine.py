@@ -4,6 +4,7 @@
 import PacManBoard
 import PacManGraphics
 import PacManPlayer
+import PacManGhosts
 
 #import required modules
 import sys, pygame
@@ -14,10 +15,13 @@ class PacManEngine:
         pygame.init()
         pygame.font.init()
 
-        #Create the player object.
+        #Create the player object and board object.
         self.player = PacManPlayer.Player()
 
         self.board = PacManBoard.Board()
+
+        """Testing for ghosts"""
+        self.ghost = PacManGhosts.Ghost()
 
         #Call the graphics function that creates the window and font.
         self.display, self.font, self.background, self.gameSprites = PacManGraphics.setupDisplay()
@@ -91,8 +95,10 @@ class PacManEngine:
         for edge in range(len(self.board.edges)):
             PacManGraphics.drawEdge(self.display, self.board.edges[edge])
 
-        """Testing"""
         PacManGraphics.drawPacDots(self.display, self.board.dots)
+
+        #Draw the ghosts
+        PacManGraphics.drawSprite(self.display, self.ghost.x, self.ghost.y, self.gameSprites, self.ghost.spriteLoc)
 
         #Update the display so the changes are shown.
         pygame.display.update()
