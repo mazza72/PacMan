@@ -74,15 +74,19 @@ class PacManEngine:
                 pygame.quit()
                 sys.exit(0)
 
-        """Will need to be checked to see if the user is playing"""
-        #Check to see if the player wants to move.
-        self.getPlayerInput()
+        #If the player is carrying out the death animation the checks for actions may be skipped.
+        if self.player.checkDying():
+            self.player.deathSequence()
+        else:
+            """Will need to be checked to see if the user is playing"""
+            #Check to see if the player wants to move.
+            self.getPlayerInput()
 
-        #Check to see if the player has moved through a tunnel.
-        self.board.checkTunnel(self.player)
+            #Check to see if the player has moved through a tunnel.
+            self.board.checkTunnel(self.player)
 
-        #Check to see if the player has eaten any Pac-Dots.
-        self.board.eatDots(self.player.x, self.player.y)
+            #Check to see if the player has eaten any Pac-Dots.
+            self.board.eatDots(self.player.x, self.player.y)
 
         #Draw the board and the player using the functions from the graphics file.
         PacManGraphics.drawboard(self.display, self.background)
