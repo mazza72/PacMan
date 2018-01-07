@@ -55,7 +55,7 @@ THREELEG = [BLINKYRIGHT2, BLINKYLEFT2, BLINKYDOWN2, BLINKYUP2, PINKYRIGHT2, PINK
 
 class Ghost():
     def __init__(self):
-        #Set the mode of the ghost to chase mode. 1 is scatter and 2 is frightened modes.
+        #Set the mode of the ghost to chase mode. 1 is scatter and 2 is frightened modes. 3 is used when the ghost has been eaten.
         self.mode = 0
         self.speed = 0.5
         #Default sprite is blinky's right movement.
@@ -66,3 +66,10 @@ class Ghost():
     def getTarget(self, player):
         self.targetPos = (player.x, player.y)
         return self.targetPos
+
+    def checkEaten(self, player):
+        if (player.x >= self.x and player.x <= self.x + 14 or player.x + 14 >= self.x and player.x + 14 <= self.x + 14 or player.x <= self.x and player.x + 14 >= self.x + 14) \
+        and (player.y >= self.y and player.y <= self.y + 14 or player.y + 14 >= self.y and player.y + 14 <= self.y + 14 or player.y <= self.y and player.y + 14 >= self.y + 14):
+            return True
+        else:
+            return False

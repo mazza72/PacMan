@@ -9,6 +9,10 @@ import PacManGhosts
 #import required modules
 import sys, pygame
 
+DOTSCORE = 10
+PELLETSCORE = 50
+GHOSTSCORE = 200
+
 class PacManEngine:
     def __init__(self):
         #Setup pygame
@@ -30,24 +34,25 @@ class PacManEngine:
         self.clock = pygame.time.Clock()
 
     def getPlayerInput(self):
-        #Create an empty direction variable.
-        direction = None
+        #Create an empty list of attempted moves.
+        directions = []
 
         #Get a dictionary with each key and a boolean value of whether it has been pressed this tick.
         keysPressed = pygame.key.get_pressed()
 
         #If one of the arrow keys has been pressed, update a direction variable to the associated direction.
+        #Allows for movement in more than one direction, as long as these directions are not opposing, to avoid bugs.
         if keysPressed[pygame.K_RIGHT]:
-            direction = "right"
+            directions.append("right")
         elif keysPressed[pygame.K_LEFT]:
-            direction = "left"
-        elif keysPressed[pygame.K_UP]:
-            direction = "up"
+            directions.append("left")
+        if keysPressed[pygame.K_UP]:
+            directions.append("up")
         elif keysPressed[pygame.K_DOWN]:
-            direction = "down"
+            directions.append("down")
 
-        #Check if the move in the required direction is valid, and if it is then make it.
-        if direction is not None:
+        #Check if each move in the required direction is valid, and if it is then make it.
+        for direction in directions:
             if self.checkPlayerMove(direction):
                 self.player.move(direction)
 
@@ -87,6 +92,10 @@ class PacManEngine:
 
             #Check to see if the player has eaten any Pac-Dots.
             self.board.eatDots(self.player.x, self.player.y)
+
+            """Testing"""
+            if self.ghost.checkEaten(self.player):
+                self.player.startDeath()
 
         #Draw the board and the player using the functions from the graphics file.
         PacManGraphics.drawboard(self.display, self.background)

@@ -21,7 +21,7 @@ RED = (255, 0, 0)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.
 WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
-WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
+WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING +15
 
 def setupDisplay():
 

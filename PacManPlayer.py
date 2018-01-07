@@ -70,13 +70,10 @@ class Player():
             return False
 
     def deathSequence(self):
-        print("Running sequence")
         #Handles the animation and effects of the player's death.
         #Check if the player has already cycled through all death sprites.
         if self.deathCount < 10:
-            print("Death count within range")
             if self.checkAnimation():
-                print("Animation counter working")
                 #Update the sprite to the next one in the list.
                 self.spriteLoc = DEATHSPRITES[self.deathCount]
                 #Add to the counter to keep track of the position in the list.
