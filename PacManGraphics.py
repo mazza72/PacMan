@@ -10,12 +10,14 @@ import pygame
 BACKGROUNDFILE = "Background.png"
 IMAGEHEIGHT = 249
 IMAGEWIDTH = 231
-FONTSIZE = 20
+FONTSIZE = 15
+"""Change to 45???"""
 OUTLINESPACING = 30
 
 #Colour constants
 BLACK  = (0,0,0)
 DOTCOLOUR = (88,83,87)
+WHITE = (255,255,255)
 """Testing"""
 RED = (255, 0, 0)
 
@@ -54,6 +56,19 @@ def drawPacDots(display, dotTable):
     for dotList in dotTable:
         for dot in dotList:
             pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
+
+def drawInfo(display, score, lives, spriteSheet, font):
+    y = 279
+    sprite = spriteSheet.image_at((473,17,14,14))
+    for life in range(lives):
+        x = 46 + life * 16
+        display.blit(sprite, (x,y))
+    label1 = font.render("1UP    HIGH SCORE", 1, WHITE)
+    label2 = font.render(str(score), 1, WHITE)
+    """Change to 102,15?"""
+    display.blit(label1, (54, 0))
+    display.blit(label2, (78 - 8 * len(str(score)), 8))
+
 
 """Testing"""
 def drawEdge(display, edge):

@@ -101,8 +101,8 @@ class PacManEngine:
         PacManGraphics.drawboard(self.display, self.background)
         PacManGraphics.drawSprite(self.display, self.player.x, self.player.y, self.gameSprites, self.player.spriteLoc)
 
-        #Sets the maximum framerate to 40 fps.
-        self.clock.tick(40)
+        #Sets the maximum framerate to 60 fps.
+        self.clock.tick(60)
 
         """Testing - draw all the edges."""
         for edge in range(len(self.board.edges)):
@@ -113,5 +113,7 @@ class PacManEngine:
         #Draw the ghosts
         PacManGraphics.drawSprite(self.display, self.ghost.x, self.ghost.y, self.gameSprites, self.ghost.spriteLoc)
 
+        """Testing"""
+        PacManGraphics.drawInfo(self.display, 0, self.player.lives, self.gameSprites, self.font)
         #Update the display so the changes are shown.
         pygame.display.update()

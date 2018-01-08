@@ -13,7 +13,7 @@ DOWN2 = (473,49,14,14)
 
 
 #Locations of Pac-Man death sprites.
-DEATHSPRITES = [(505,1,14,14),(521,1,14,14),(537,1,14,14),(553,1,14,14),(569,1,14,14),(585,1,14,14),(601,1,14,14),(617,1,14,14),(633,1,14,14),(649,1,14,14)]
+DEATHSPRITES = [(505,1,14,14),(521,1,14,14),(537,1,14,14),(553,1,14,14),(569,1,14,14),(585,1,14,14),(601,1,14,14),(617,1,14,14),(633,1,14,14),(649,1,14,14), (665,1,14,14), (681,1,14,14)]
 
 #Creates lists of sprites according to whether they have their mouth open or closed.
 OPENSPRITES = [RIGHT1, LEFT1, UP1, DOWN1]
@@ -30,6 +30,10 @@ class Player():
         self.updateCount = 0
         #Counter for the death sprites.
         self.deathCount = 0
+        #The number of lives the player has.
+        self.lives = 3
+        #Sets the base speed (at 100% for the player)
+        self.baseSpeed = 1.46
 
     def move(self, direction):
         #Updates the position of the player based on the direction it is moving.
@@ -72,7 +76,7 @@ class Player():
     def deathSequence(self):
         #Handles the animation and effects of the player's death.
         #Check if the player has already cycled through all death sprites.
-        if self.deathCount < 10:
+        if self.deathCount < 12:
             if self.checkAnimation():
                 #Update the sprite to the next one in the list.
                 self.spriteLoc = DEATHSPRITES[self.deathCount]
@@ -92,7 +96,10 @@ class Player():
         #Begins the death animation and resets the animation counter.
         self.updateCount = 0
         self.spriteLoc = DEATHSPRITES[0]
+        #Increments the death counter to show that the player is mid animation.
         self.deathCount = 1
+        #Removes a life from the player.
+        self.lives -= 1
 
     def checkDying(self):
         #Return whether the player is currently carrying out the death animation.
