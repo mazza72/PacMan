@@ -11,7 +11,7 @@ BACKGROUNDFILE = "Background.png"
 IMAGEHEIGHT = 249
 IMAGEWIDTH = 231
 FONTSIZE = 20
-OUTLINESPACING = 30
+OUTLINESPACING = 45
 
 #Colour constants
 BLACK  = (0,0,0)
@@ -21,7 +21,7 @@ RED = (255, 0, 0)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.
 WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
-WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING +15
+WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
 
 def setupDisplay():
 
@@ -51,9 +51,7 @@ def drawSprite(display, x, y, spriteSheet, spriteLocation):
     display.blit(sprite, (x,y))
 
 def drawPacDots(display, dotTable):
-    for dotList in dotTable:
-        for dot in dotList:
-            pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
+    pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
 
 """Testing"""
 def drawEdge(display, edge):

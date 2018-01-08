@@ -55,6 +55,7 @@ class PacManEngine:
         for direction in directions:
             if self.checkPlayerMove(direction):
                 self.player.move(direction)
+                self.player.tile = self.board.findTile(self.player.x, self.player.y)
 
         #Code for testing player coordinates. Remove later.
         if keysPressed[pygame.K_RETURN]:
@@ -64,13 +65,13 @@ class PacManEngine:
     def checkPlayerMove(self, direction):
         #Check that the move is valid using the board's checkValidPosition function.
         if direction == "right":
-            return self.board.checkValidPosition(self.player.x + 1, self.player.y, 14, 14)
+            return self.board.checkValidPosition(self.player.x + 1, self.player.y)
         elif direction == "left":
-            return self.board.checkValidPosition(self.player.x - 1, self.player.y, 14, 14)
+            return self.board.checkValidPosition(self.player.x - 1, self.player.y)
         elif direction == "up":
-            return self.board.checkValidPosition(self.player.x, self.player.y - 1, 14, 14)
+            return self.board.checkValidPosition(self.player.x, self.player.y - 1)
         else:
-            return self.board.checkValidPosition(self.player.x, self.player.y + 1, 14, 14)
+            return self.board.checkValidPosition(self.player.x, self.player.y + 1)
 
     def gameloop(self):
         #Get the events that have occurred, and check to see if the user wants to quit.
@@ -87,11 +88,14 @@ class PacManEngine:
             #Check to see if the player wants to move.
             self.getPlayerInput()
 
+
+            """Removed temporarily
             #Check to see if the player has moved through a tunnel.
             self.board.checkTunnel(self.player)
 
             #Check to see if the player has eaten any Pac-Dots.
-            self.board.eatDots(self.player.x, self.player.y)
+            self.board.eatDot(self.player.x, self.player.y)
+            """
 
             """Testing"""
             if self.ghost.checkEaten(self.player):
@@ -99,19 +103,17 @@ class PacManEngine:
 
         #Draw the board and the player using the functions from the graphics file.
         PacManGraphics.drawboard(self.display, self.background)
-        PacManGraphics.drawSprite(self.display, self.player.x, self.player.y, self.gameSprites, self.player.spriteLoc)
+        PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
 
         #Sets the maximum framerate to 40 fps.
         self.clock.tick(40)
 
-        """Testing - draw all the edges."""
-        for edge in range(len(self.board.edges)):
-            PacManGraphics.drawEdge(self.display, self.board.edges[edge])
-
+        """Removed temporarily
         PacManGraphics.drawPacDots(self.display, self.board.dots)
+        """
 
         #Draw the ghosts
-        PacManGraphics.drawSprite(self.display, self.ghost.x, self.ghost.y, self.gameSprites, self.ghost.spriteLoc)
+        PacManGraphics.drawSprite(self.display, self.ghost.x - 7, self.ghost.y - 7, self.gameSprites, self.ghost.spriteLoc)
 
         #Update the display so the changes are shown.
         pygame.display.update()

@@ -22,8 +22,9 @@ CLOSEDSPRITES = [RIGHT2, LEFT2, UP2, DOWN2]
 class Player():
     def __init__(self):
         #Set the starting position of the player.
-        self.y = 211
-        self.x = 139
+        self.y = 232
+        self.x = 161
+        self.tile = [23,14]
         #Set the player's sprite to the starting sprite.
         self.spriteLoc = START
         #Counter to delay the changing of sprites to make animations visible.
@@ -83,8 +84,8 @@ class Player():
             #Reset the counter.
             self.deathCount = 0
             #Return the player to starting conditions.
-            self.y = 211
-            self.x = 139
+            self.y = 232
+            self.x = 161
             self.spriteLoc = START
             self.updateCount = 0
 

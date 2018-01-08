@@ -60,8 +60,8 @@ class Ghost():
         self.speed = 0.5
         #Default sprite is blinky's right movement.
         self.spriteLoc = BLINKYRIGHT1
-        self.x = 139
-        self.y = 114
+        self.x = 161
+        self.y = 136
 
     def getTarget(self, player):
         self.targetPos = (player.x, player.y)
