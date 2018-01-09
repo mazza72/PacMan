@@ -105,6 +105,12 @@ class PacManEngine:
         PacManGraphics.drawboard(self.display, self.background)
         PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
 
+        """Testing"""
+        PacManGraphics.drawRects(self.display, self.player.x, self.player.y)
+        PacManGraphics.drawRects(self.display, self.player.x - 1, self.player.y + 1)
+        PacManGraphics.drawRects(self.display, self.player.x - 7, self.player.y - 6)
+        #PacManGraphics.drawGrid(self.display)
+
         #Sets the maximum framerate to 40 fps.
         self.clock.tick(40)
 

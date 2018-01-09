@@ -82,18 +82,22 @@ class Board():
             if objy > rowy and objy <= rowy + 8:
                 #Check which column the object's centre lies in.
                 for i in range(len(self.tiles[j])):
-                    colx = i * 8 + 45
+                    colx = i * 8 + 48
                     if objx > colx and objx <= colx + 8:
                         #Use the row and columnn to return the objects current tile.
-                        print("i", i)
-                        print("j", j)
+                        print("i, j",i,j)
                         return self.tiles[j][i]
 
     def checkValidPosition(self, objx, objy):
-        #Find the tile the object would lie on if they moved.
+        #Check that the 2x2 centre of the sprite doesn't lie over a tile that cannot be moved to.
         tile = self.findTile(objx, objy)
+        tile2 = self.findTile(objx - 1, objy + 1)
+        print(tile, tile2)
         #Return whether that tile can be moved to.
-        return tile[0]
+        if tile[0] and tile2[0]:
+            return True
+        else:
+            return False
 
     def checkTunnel(self, objToCheck):
         #Check if a ghost or the player has passed through a tunnel to the other side of the board.

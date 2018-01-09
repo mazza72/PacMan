@@ -56,3 +56,12 @@ def drawPacDots(display, dotTable):
 """Testing"""
 def drawEdge(display, edge):
     pygame.draw.rect(display, RED, (edge.x, edge.y, edge.width, edge.length), 0)
+
+def drawRects(display, x, y):
+    pygame.draw.rect(display, RED, (x, y, 1, 1),0)
+
+def drawGrid(display):
+    for i in range(36):
+        pygame.draw.rect(display, RED, (8 * i + 48, 1, 1, 400), 0)
+    for j in range(36):
+        pygame.draw.rect(display, RED, (1, 8 * j + 45, 400, 1), 0)
