@@ -10,9 +10,8 @@ import pygame
 BACKGROUNDFILE = "Background.png"
 IMAGEHEIGHT = 249
 IMAGEWIDTH = 231
-FONTSIZE = 15
-"""Change to 45???"""
-OUTLINESPACING = 30
+FONTSIZE = 20
+OUTLINESPACING = 45
 
 #Colour constants
 BLACK  = (0,0,0)
@@ -23,7 +22,7 @@ RED = (255, 0, 0)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.
 WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
-WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING +15
+WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
 
 def setupDisplay():
 
@@ -53,9 +52,7 @@ def drawSprite(display, x, y, spriteSheet, spriteLocation):
     display.blit(sprite, (x,y))
 
 def drawPacDots(display, dotTable):
-    for dotList in dotTable:
-        for dot in dotList:
-            pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
+    pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
 
 def drawInfo(display, score, lives, spriteSheet, font):
     y = 279
@@ -73,3 +70,12 @@ def drawInfo(display, score, lives, spriteSheet, font):
 """Testing"""
 def drawEdge(display, edge):
     pygame.draw.rect(display, RED, (edge.x, edge.y, edge.width, edge.length), 0)
+
+def drawRects(display, x, y):
+    pygame.draw.rect(display, RED, (x, y, 1, 1),0)
+
+def drawGrid(display):
+    for i in range(36):
+        pygame.draw.rect(display, RED, (8 * i + 48, 1, 1, 400), 0)
+    for j in range(36):
+        pygame.draw.rect(display, RED, (1, 8 * j + 45, 400, 1), 0)
