@@ -85,7 +85,6 @@ class Board():
                     colx = i * 8 + 48
                     if objx > colx and objx <= colx + 8:
                         #Use the row and columnn to return the objects current tile.
-                        print("i, j",i,j)
                         return self.tiles[j][i]
 
     def checkValidPosition(self, objx, objy):
@@ -101,7 +100,12 @@ class Board():
 
     def checkTunnel(self, objToCheck):
         #Check if a ghost or the player has passed through a tunnel to the other side of the board.
-        print("Testing")
+        #Compare the x coordinate of the object to the left side of the board.
+        if objToCheck.x == 55:
+            objToCheck.x = 264
+        #Compare the x coordinate of the object to the right side of the board.
+        elif objToCheck.x == 264:
+            objToCheck.x = 55
 
     def eatDot(self, playerTile):
         #Use the playerTile tuple to access the relevent tile, and look at it's value for whether there is a PacDot there.

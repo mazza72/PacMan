@@ -88,11 +88,10 @@ class PacManEngine:
             #Check to see if the player wants to move.
             self.getPlayerInput()
 
-
-            """Removed temporarily
             #Check to see if the player has moved through a tunnel.
             self.board.checkTunnel(self.player)
 
+            """Removed temporarily
             #Check to see if the player has eaten any Pac-Dots.
             self.board.eatDot(self.player.x, self.player.y)
             """
