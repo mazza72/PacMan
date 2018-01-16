@@ -13,6 +13,9 @@ IMAGEWIDTH = 231
 FONTSIZE = 20
 OUTLINESPACING = 45
 
+#List containing the locations of each fruit.
+FRUITS = [(487,49,14,14), (503,49,14,14)]
+
 #Colour constants
 BLACK  = (0,0,0)
 DOTCOLOUR = (88,83,87)
@@ -51,11 +54,19 @@ def drawSprite(display, x, y, spriteSheet, spriteLocation):
     sprite = spriteSheet.image_at(spriteLocation)
     display.blit(sprite, (x,y))
 
-def drawPacDots(display, dotTable):
-    pygame.draw.rect(display, DOTCOLOUR, (dot.x, dot.y, 2, 2), 0)
+def drawPacDots(display, Tiles):
+    #Check each tile in the array.
+    for row in range(len(Tiles)):
+        doty = 48 + row * 8
+        for col in range(len(Tiles[row])):
+            #If the Tile has a PacDot in it.
+            if Tiles[row][col][1]:
+                dotx = 52 + col * 8
+                #Draw the dot.
+                pygame.draw.rect(display, DOTCOLOUR, (dotx, doty, 2, 2), 0)
 
 def drawInfo(display, score, lives, spriteSheet, font):
-    y = 279
+    y = 294
     sprite = spriteSheet.image_at((473,17,14,14))
     for life in range(lives):
         x = 46 + life * 16
@@ -65,11 +76,6 @@ def drawInfo(display, score, lives, spriteSheet, font):
     """Change to 102,15?"""
     display.blit(label1, (54, 0))
     display.blit(label2, (78 - 8 * len(str(score)), 8))
-
-
-"""Testing"""
-def drawEdge(display, edge):
-    pygame.draw.rect(display, RED, (edge.x, edge.y, edge.width, edge.length), 0)
 
 def drawRects(display, x, y):
     pygame.draw.rect(display, RED, (x, y, 1, 1),0)

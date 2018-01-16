@@ -84,14 +84,15 @@ class Board():
                 for i in range(len(self.tiles[j])):
                     colx = i * 8 + 48
                     if objx > colx and objx <= colx + 8:
-                        #Use the row and columnn to return the objects current tile.
-                        return self.tiles[j][i]
+                        #Return the row and column of the objects current tile.
+                        return (j,i)
 
     def checkValidPosition(self, objx, objy):
         #Check that the 2x2 centre of the sprite doesn't lie over a tile that cannot be moved to.
-        tile = self.findTile(objx, objy)
-        tile2 = self.findTile(objx - 1, objy + 1)
-        print(tile, tile2)
+        j, i = self.findTile(objx, objy)
+        tile = self.tiles[j][i]
+        j, i = self.findTile(objx - 1, objy + 1)
+        tile2 = self.tiles[j][i]
         #Return whether that tile can be moved to.
         if tile[0] and tile2[0]:
             return True
@@ -101,16 +102,17 @@ class Board():
     def checkTunnel(self, objToCheck):
         #Check if a ghost or the player has passed through a tunnel to the other side of the board.
         #Compare the x coordinate of the object to the left side of the board.
-        if objToCheck.x == 55:
-            objToCheck.x = 264
+        if objToCheck.x == 57:
+            objToCheck.x = 266
         #Compare the x coordinate of the object to the right side of the board.
-        elif objToCheck.x == 264:
-            objToCheck.x = 55
+        elif objToCheck.x == 266:
+            objToCheck.x = 57
 
     def eatDot(self, playerTile):
         #Use the playerTile tuple to access the relevent tile, and look at it's value for whether there is a PacDot there.
         if self.tiles[playerTile[0]][playerTile[1]][1]:
-            self.tiles[playerTile[0]][playerTile[1]][1] = False
+            canMove = self.tiles[playerTile[0]][playerTile[1]][0]
+            self.tiles[playerTile[0]][playerTile[1]] = (canMove, False)
             return True
         else:
             return False

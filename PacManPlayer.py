@@ -24,7 +24,7 @@ class Player():
         #Set the starting position of the player.
         self.y = 232
         self.x = 161
-        self.tile = [23,14]
+        self.tile = (23,14)
         #Set the player's sprite to the starting sprite.
         self.spriteLoc = START
         #Counter to delay the changing of sprites to make animations visible.

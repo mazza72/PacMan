@@ -33,6 +33,9 @@ class PacManEngine:
         #Creates a clock object to manage the framerate of the game.
         self.clock = pygame.time.Clock()
 
+        #Create an empty score.
+        self.score = 0
+
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
         directions = []
@@ -91,10 +94,9 @@ class PacManEngine:
             #Check to see if the player has moved through a tunnel.
             self.board.checkTunnel(self.player)
 
-            """Removed temporarily
-            #Check to see if the player has eaten any Pac-Dots.
-            self.board.eatDot(self.player.x, self.player.y)
-            """
+            #Check to see if the player has eaten any Pac-Dots. Returns True if it has.
+            if self.board.eatDot(self.player.tile):
+                self.score += DOTSCORE
 
             """Testing"""
             if self.ghost.checkEaten(self.player):
@@ -113,14 +115,15 @@ class PacManEngine:
         #Sets the maximum framerate to 60 fps.
         self.clock.tick(60)
 
-        """Removed temporarily
-        PacManGraphics.drawPacDots(self.display, self.board.dots)
-        """
+        #Use the board tiles to draw the PacDots.
+        PacManGraphics.drawPacDots(self.display, self.board.tiles)
 
-        #Draw the ghosts
+
+        #Draw the ghosts.
         PacManGraphics.drawSprite(self.display, self.ghost.x - 7, self.ghost.y - 7, self.gameSprites, self.ghost.spriteLoc)
 
         """Testing"""
-        PacManGraphics.drawInfo(self.display, 0, self.player.lives, self.gameSprites, self.font)
+        PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
+
         #Update the display so the changes are shown.
         pygame.display.update()
