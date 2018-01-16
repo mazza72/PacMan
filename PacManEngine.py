@@ -7,11 +7,12 @@ import PacManPlayer
 import PacManGhosts
 
 #import required modules
-import sys, pygame
+import sys, pygame, random, time
 
 DOTSCORE = 10
 PELLETSCORE = 50
 GHOSTSCORE = 200
+FRUITSCORES = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
 
 class PacManEngine:
     def __init__(self):
@@ -33,8 +34,13 @@ class PacManEngine:
         #Creates a clock object to manage the framerate of the game.
         self.clock = pygame.time.Clock()
 
-        #Create an empty score.
+        #Create an empty score and a counter for the number of dots eaten.
         self.score = 0
+        self.dotCount = 0
+
+        """Testing"""
+        self.fruit = False
+        self.level = 1
 
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
@@ -97,33 +103,57 @@ class PacManEngine:
             #Check to see if the player has eaten any Pac-Dots. Returns True if it has.
             if self.board.eatDot(self.player.tile):
                 self.score += DOTSCORE
+                self.dotCount += 1
+
+                #Check if enough dots have been eaten to generate fruit.
+                if self.dotCount == 70 or self.dotCount == 170:
+                    self.fruit = True
+                    #Create a time limit between 9 and 10 seconds for the fruit to exist for.
+                    self.fruitLimit = 9 + random.uniform(0,1)
+                    #Find the time the fruit was created at.
+                    self.fruitTime = time.time()
 
             """Testing"""
             if self.ghost.checkEaten(self.player):
                 self.player.startDeath()
 
-        #Draw the board and the player using the functions from the graphics file.
-        PacManGraphics.drawboard(self.display, self.background)
-        PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
-
-        """Testing"""
-        PacManGraphics.drawRects(self.display, self.player.x, self.player.y)
-        PacManGraphics.drawRects(self.display, self.player.x - 1, self.player.y + 1)
-        PacManGraphics.drawRects(self.display, self.player.x - 7, self.player.y - 6)
-        #PacManGraphics.drawGrid(self.display)
-
         #Sets the maximum framerate to 60 fps.
         self.clock.tick(60)
 
-        #Use the board tiles to draw the PacDots.
-        PacManGraphics.drawPacDots(self.display, self.board.tiles)
+        #Draw the constant objects.
+        self.drawObjects()
 
+        #Draw fruit along the bottom of the board according to the current level.
+        PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.level)
+
+        #Check if there is currently fruit on the board.
+        if self.fruit:
+            #If the player is on the fruit tile, remove it and add to the score.
+            if self.player.tile == (17,14):
+                self.fruit = False
+                self.score += FRUITSCORES[((self.level - 1) % 8)]
+            #Otherwise, if more time has elapsed than the limit set at creation, remove the fruit.
+            elif (time.time() - self.fruitTime) > self.fruitLimit:
+                self.fruit = False
+            #Draw the fruit if nothing has happened to it.
+            else:
+                PacManGraphics.drawFruit(self.display, self.gameSprites, self.level)
+
+        #Update the display so the changes are shown.
+        pygame.display.update()
+
+    def drawObjects(self):
+        #Calls the required draw functions for objects that always exist.
+
+        #Draw the board and the player.
+        PacManGraphics.drawboard(self.display, self.background)
+        PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
 
         #Draw the ghosts.
         PacManGraphics.drawSprite(self.display, self.ghost.x - 7, self.ghost.y - 7, self.gameSprites, self.ghost.spriteLoc)
 
-        """Testing"""
+        #Add labels to the edge of the board - lives, score etc.
         PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
 
-        #Update the display so the changes are shown.
-        pygame.display.update()
+        #Use the board tiles to draw the PacDots.
+        PacManGraphics.drawPacDots(self.display, self.board.tiles)

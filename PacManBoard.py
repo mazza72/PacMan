@@ -1,11 +1,5 @@
 """Class & methods that define the board and allow it to be used"""
 
-#Tunnels are at y 140
-#Gate and start are at x 139
-
-#26 pac dots
-#8 Pixels between each pac dot
-
 #Array with the state of each tile in the grid. (Possible to move to, PacDot existence)
 BOARDTEMPLATE = [[(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),
 (False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False)],

@@ -14,14 +14,12 @@ FONTSIZE = 20
 OUTLINESPACING = 45
 
 #List containing the locations of each fruit.
-FRUITS = [(487,49,14,14), (503,49,14,14)]
+FRUITS = [(489,49,14,14), (505,49,14,14), (521,49,14,14), (537,49,14,14), (553,49,14,14), (569,49,14,14), (585,49,14,14), (601,49,14,14)]
 
 #Colour constants
 BLACK  = (0,0,0)
 DOTCOLOUR = (88,83,87)
 WHITE = (255,255,255)
-"""Testing"""
-RED = (255, 0, 0)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.
 WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
@@ -66,22 +64,33 @@ def drawPacDots(display, Tiles):
                 pygame.draw.rect(display, DOTCOLOUR, (dotx, doty, 2, 2), 0)
 
 def drawInfo(display, score, lives, spriteSheet, font):
+    #Set a constant height for the bottom of the board.
     y = 294
+    #Load the life sprite.
     sprite = spriteSheet.image_at((473,17,14,14))
+    #Draw as many lives as the player has at 16 pixel intervals along the bottom of the screen.
     for life in range(lives):
         x = 46 + life * 16
         display.blit(sprite, (x,y))
+
+    #Write the high score and current score to the screen.
+    """Need to add a high score loaded from file"""
     label1 = font.render("1UP    HIGH SCORE", 1, WHITE)
     label2 = font.render(str(score), 1, WHITE)
-    """Change to 102,15?"""
     display.blit(label1, (54, 0))
-    display.blit(label2, (78 - 8 * len(str(score)), 8))
+    #Change the starting position of the score label according to the number of digits it has, so it remains in place.
+    display.blit(label2, (78 - 8 * len(str(score)), 12))
 
-def drawRects(display, x, y):
-    pygame.draw.rect(display, RED, (x, y, 1, 1),0)
+def drawFruitsRow(display, spriteSheet, level):
+    #Draw a row of fruit along the bottom of the board according to the level.
+    for fruit in range(level):
+        fruit %= 8
+        sprite = spriteSheet.image_at(FRUITS[fruit])
+        #Decrease the x coordinate by 16 pixel intervals for each fruit.
+        display.blit(sprite, (250 - fruit * 16,294))
 
-def drawGrid(display):
-    for i in range(36):
-        pygame.draw.rect(display, RED, (8 * i + 48, 1, 1, 400), 0)
-    for j in range(36):
-        pygame.draw.rect(display, RED, (1, 8 * j + 45, 400, 1), 0)
+def drawFruit(display, spritesSheet, level):
+    #Draw the fruit associated with the current level at a constant position.
+    level = (level - 1) % 8
+    sprite = spritesSheet.image_at(FRUITS[level])
+    display.blit(sprite, (154, 178))

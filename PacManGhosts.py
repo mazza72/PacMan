@@ -64,10 +64,13 @@ class Ghost():
         self.y = 136
 
     def getTarget(self, player):
+        """Currently returns blinky's target, following the player."""
         self.targetPos = (player.x, player.y)
         return self.targetPos
 
     def checkEaten(self, player):
+        #Check for a collision with the player.
+        """Update to use tiles"""
         if (player.x >= self.x and player.x <= self.x + 14 or player.x + 14 >= self.x and player.x + 14 <= self.x + 14 or player.x <= self.x and player.x + 14 >= self.x + 14) \
         and (player.y >= self.y and player.y <= self.y + 14 or player.y + 14 >= self.y and player.y + 14 <= self.y + 14 or player.y <= self.y and player.y + 14 >= self.y + 14):
             return True
