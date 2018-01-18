@@ -47,9 +47,10 @@ CLYDEDOWN2 = (569, 113, 14, 14)
 FRIGHTENED1 = (585, 65, 14, 14)
 FRIGHTENED2 = (601, 65, 14, 14)
 
-SCATTER1 = (617, 65, 14, 14)
-SCATTER2 = (617, 65, 14, 14)
+FRIGHTENED3 = (617, 65, 14, 14)
+FRIGHTENED4 = (633, 65, 14, 14)
 
+"""Possibly split into separate lists that are stored within the object itself?"""
 FOURLEG = [BLINKYRIGHT1, BLINKYLEFT1, BLINKYDOWN1, BLINKYUP1, PINKYRIGHT1, PINKYLEFT1, PINKYDOWN1, PINKYUP1, INKYRIGHT1, INKYLEFT1, INKYDOWN1, INKYUP1, CLYDERIGHT1, CLYDELEFT1, CLYDEDOWN1, CLYDEUP1]
 THREELEG = [BLINKYRIGHT2, BLINKYLEFT2, BLINKYDOWN2, BLINKYUP2, PINKYRIGHT2, PINKYLEFT2, PINKYDOWN2, PINKYUP2, INKYRIGHT2, INKYLEFT2, INKYDOWN2, INKYUP2, CLYDERIGHT2, CLYDELEFT2, CLYDEDOWN2, CLYDEUP2]
 
@@ -60,19 +61,87 @@ class Ghost():
         self.speed = 0.5
         #Default sprite is blinky's right movement.
         self.spriteLoc = BLINKYRIGHT1
+        #Stores the number of the ghost to be used for generating sprites etc.
+        self.ghostNo = 0
+        #Store Blinky's hard-coded start location.
         self.x = 161
         self.y = 136
+        self.tile = (11,13)
+        #Store the direction as moving left for when the ghost initially moves.
+        self.direction = [-1, 0]
+        #Store a counter for the number of ticks between animations.
+        self.updateCount = 0
 
     def getTarget(self, player):
         """Currently returns blinky's target, following the player."""
-        self.targetPos = (player.x, player.y)
+        if self.mode == 0:
+            self.targetPos = player.tile
+        elif self.mode == 1:
+            self.targetPos = (-2, 3)
         return self.targetPos
 
     def checkEaten(self, player):
         #Check for a collision with the player.
-        """Update to use tiles"""
-        if (player.x >= self.x and player.x <= self.x + 14 or player.x + 14 >= self.x and player.x + 14 <= self.x + 14 or player.x <= self.x and player.x + 14 >= self.x + 14) \
-        and (player.y >= self.y and player.y <= self.y + 14 or player.y + 14 >= self.y and player.y + 14 <= self.y + 14 or player.y <= self.y and player.y + 14 >= self.y + 14):
+        if player.tile == self.tile:
             return True
         else:
             return False
+
+    def updateMode(self, mode):
+        #Store the current mode in case the ghost needs to return to it.
+        self.lastmode = self.mode
+        #Update the ghost's mode to the one it is switching to.
+        self.mode = mode
+        #Reverse the direction of the ghost unless it is leaving frightened mode.
+        if self.lastmode != 2:
+            self.direction = list(map((lambda x: -1 * x), self.direction))
+
+    def updateSprite(self):
+        #Animates the player sprite.
+        if self.checkAnimation():
+            #Check if the ghost is in chase mode, and therefore uses a default sprite.
+            if self.mode == 0:
+                #Generate a location for the position of the sprite within the list.
+                spritePos = self.ghostNo * 4 + 2 * self.direction[1]
+                #Test whether one of the values within the direction is negative, and if so, use the next location along in the list.
+                valueTest = list(map(lambda x: abs(x), self.direction))
+                if valueTest != self.direction:
+                    spritePos += 1
+                #Checks what the existing sprite is, and loads the alternate one.
+                if self.spriteLoc in FOURLEG:
+                    self.spriteLoc = THREELEG[spritePos]
+                else:
+                    self.spriteLoc = FOURLEG[spritePos]
+            elif self.mode == 1:
+                if self.spriteLoc == FRIGHTENED1:
+                    self.spriteLoc = FRIGHTENED2
+                else:
+                    self.spriteLoc = FRIGHTENED1
+
+    def checkAnimation(self):
+        #Checks if 5 ticks have passed since the last sprite change.
+        self.updateCount += 1
+        #If 5 ticks have passed:
+        if self.updateCount == 5:
+            #Reset the counter and return true.
+            self.updateCount = 0
+            return True
+        else:
+            return False
+
+    def move(self):
+        self.x += self.direction[0]
+        self.y += self.direction[1]
+
+
+class Pinky():
+    def getTarget(self, player):
+        if player.direction == 0:
+            self.targetPos = (player.tile[0], player.tile[1] + 2)
+        elif player.direction == 1:
+            self.targetPos = (player.tile[0], player.tile[1] - 2)
+        elif player.direction == 2:
+            self.targetPos = (player.tile[0] - 1, player.tile[1])
+        else:
+            self.targetPos = (player.tile[0] + 1, player.tile[1])
+        return targetPos

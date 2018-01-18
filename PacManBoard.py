@@ -110,3 +110,9 @@ class Board():
             return True
         else:
             return False
+
+    def calculateDistance(self, tile1, tile2):
+        #Calculate the distance between two board tiles.
+        xdist = abs(tile1[0] - tile2[0])
+        ydist = abs(tile1[1] - tile2[1])
+        distance = (xdist ** 2 + ydist ** 2) ** 0.5

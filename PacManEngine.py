@@ -9,6 +9,10 @@ import PacManGhosts
 #import required modules
 import sys, pygame, random, time
 
+#Constant base speed for player and ghosts.
+BASESPEED = 1.46
+
+#Constants for updating score.
 DOTSCORE = 10
 PELLETSCORE = 50
 GHOSTSCORE = 200
@@ -89,6 +93,36 @@ class PacManEngine:
                 pygame.quit()
                 sys.exit(0)
 
+        self.takePlayerTurn()
+
+        self.takeGhostTurn()
+
+        #Sets the maximum framerate to 60 fps.
+        self.clock.tick(60)
+
+        #Draw the constant objects.
+        self.drawObjects()
+
+        #Draw fruit along the bottom of the board according to the current level.
+        PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.level)
+
+        #Check if there is currently fruit on the board.
+        if self.fruit:
+            #If the player is on the fruit tile, remove it and add to the score.
+            if self.player.tile == (17,14) or self.player.tile == (17, 13):
+                self.fruit = False
+                self.score += FRUITSCORES[((self.level - 1) % 8)]
+            #Otherwise, if more time has elapsed than the limit set at creation, remove the fruit.
+            elif (time.time() - self.fruitTime) > self.fruitLimit:
+                self.fruit = False
+            #Draw the fruit if nothing has happened to it.
+            else:
+                PacManGraphics.drawFruit(self.display, self.gameSprites, self.level)
+
+        #Update the display so the changes are shown.
+        pygame.display.update()
+
+    def takePlayerTurn(self):
         #If the player is carrying out the death animation the checks for actions may be skipped.
         if self.player.checkDying():
             self.player.deathSequence()
@@ -113,39 +147,21 @@ class PacManEngine:
                     #Find the time the fruit was created at.
                     self.fruitTime = time.time()
 
-            """Testing"""
-            if self.ghost.checkEaten(self.player):
-                self.player.startDeath()
 
-        #Sets the maximum framerate to 60 fps.
-        self.clock.tick(60)
+    def takeGhostTurn(self):
+        """Testing"""
+        if self.ghost.checkEaten(self.player):
+            self.player.startDeath()
 
-        #Draw the constant objects.
-        self.drawObjects()
+        self.ghost.move()
+        self.ghost.updateSprite()
+        self.ghost.tile = self.board.findTile(self.ghost.x, self.ghost.y)
 
-        #Draw fruit along the bottom of the board according to the current level.
-        PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.level)
-
-        #Check if there is currently fruit on the board.
-        if self.fruit:
-            #If the player is on the fruit tile, remove it and add to the score.
-            if self.player.tile == (17,14):
-                self.fruit = False
-                self.score += FRUITSCORES[((self.level - 1) % 8)]
-            #Otherwise, if more time has elapsed than the limit set at creation, remove the fruit.
-            elif (time.time() - self.fruitTime) > self.fruitLimit:
-                self.fruit = False
-            #Draw the fruit if nothing has happened to it.
-            else:
-                PacManGraphics.drawFruit(self.display, self.gameSprites, self.level)
-
-        #Update the display so the changes are shown.
-        pygame.display.update()
 
     def drawObjects(self):
         #Calls the required draw functions for objects that always exist.
 
-        #Draw the board and the player.
+        #Draw the player and board.
         PacManGraphics.drawboard(self.display, self.background)
         PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
 

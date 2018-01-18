@@ -1,5 +1,3 @@
-#Pac-Man is 16 by 16.
-
 #Locations of Pac-Man movement sprites in the spritesheet.
 START = (489,1,14,14)
 RIGHT1 = (457,1,14,14)
@@ -33,28 +31,31 @@ class Player():
         self.deathCount = 0
         #The number of lives the player has.
         self.lives = 3
-        #Sets the base speed (at 100% for the player)
-        self.baseSpeed = 1.46
 
     def move(self, direction):
         #Updates the position of the player based on the direction it is moving.
         if direction == "right":
             self.x += 1
             self.updateSprite(0)
+            self.direction = 0
 
         elif direction == "left":
             self.x -= 1
             self.updateSprite(1)
+            self.direction = 1
 
         elif direction == "up":
             self.y -= 1
             self.updateSprite(2)
+            self.direction = 2
 
         else:
             self.y += 1
             self.updateSprite(3)
+            self.direction = 3
 
     def updateSprite(self, direction):
+        """Update so it uses the stored direction?"""
         #Animates the player sprite.
         if self.checkAnimation():
             #Checks what the existing sprite is, and loads the alternate one.
@@ -90,6 +91,7 @@ class Player():
             #Return the player to starting conditions.
             self.y = 232
             self.x = 161
+            self.tile = (23,14)
             self.spriteLoc = START
             self.updateCount = 0
 

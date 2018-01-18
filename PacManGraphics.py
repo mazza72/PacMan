@@ -26,7 +26,6 @@ WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
 WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
 
 def setupDisplay():
-
     #Create a window of the speicified height and width.
     display = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     pygame.display.set_caption('Pac-Man demonstration')
