@@ -111,8 +111,35 @@ class Board():
         else:
             return False
 
-    def calculateDistance(self, tile1, tile2):
-        #Calculate the distance between two board tiles.
-        xdist = abs(tile1[0] - tile2[0])
-        ydist = abs(tile1[1] - tile2[1])
-        distance = (xdist ** 2 + ydist ** 2) ** 0.5
+    def checkTileCentre(self, objx, objy):
+        #Calculate the distance of the object from the 4x4 centre of a tile.
+        tilePosx = (objx - 50) % 8
+        tilePosy = (objy - 47) % 8
+        #Check if the object is within the centre.
+        if tilePosx < 5 and tilePosy < 5:
+            return True
+        else:
+            return False
+
+    def checkJunction(self, tile):
+        #Check if there is a junction based on whether there is at least one tile free both horizontally and vertically.
+        #Create an array for the tiles that are available in the order up, left, down, right (priority order).
+        availableTiles = [None, None, None, None]
+
+        #Check if a tile above or below can be moved to.
+        if self.tiles[tile[0] - 1][tile[1]][0] or self.tiles[tile[0] + 1][tile[1]][0]:
+            #Check if a tile left or right can be moved to.
+            if self.tiles[tile[0]][tile[1] - 1][0] or self.tiles[tile[0]][tile[1] + 1][0]:
+                #Update the values in the array according to whether each tile can be moved to.
+                #Upwards checks for some hard coded values the ghosts cannot turn into.
+                if self.tiles[tile[0] - 1][tile[1]][0] and tile[0] != 11 and not (tile[0] == 23 and 11 < tile[1] < 17):
+                    availableTiles[0] = (tile[0] - 1, tile[1])
+                if self.tiles[tile[0]][tile[1] - 1][0]:
+                    availableTiles[1] = (tile[0], tile[1] - 1)
+                if self.tiles[tile[0] + 1][tile[1]][0]:
+                    availableTiles[2] = (tile[0] + 1, tile[1])
+                if self.tiles[tile[0]][tile[1] + 1][0]:
+                    availableTiles[3] = (tile[0], tile[1] + 1)
+                return (True, availableTiles)
+
+        return (False, availableTiles)

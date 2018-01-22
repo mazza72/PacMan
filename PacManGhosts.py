@@ -67,10 +67,13 @@ class Ghost():
         self.x = 161
         self.y = 136
         self.tile = (11,13)
+        self.oldTile = (11,13)
         #Store the direction as moving left for when the ghost initially moves.
         self.direction = [-1, 0]
         #Store a counter for the number of ticks between animations.
         self.updateCount = 0
+        #Store a counter for the delay when cornering.
+        self.cornerCount = 3
 
     def getTarget(self, player):
         """Currently returns blinky's target, following the player."""
@@ -96,13 +99,41 @@ class Ghost():
         if self.lastmode != 2:
             self.direction = list(map((lambda x: -1 * x), self.direction))
 
+    def useJunction(self, freeTiles):
+        valueTest = list(map(lambda x: abs(x), self.direction))
+        if valueTest != self.direction:
+            entryTile = 2 + abs(self.direction[0])
+        else:
+            entryTile = self.direction[0]
+        print(entryTile)
+        freeTiles[entryTile] = None
+        print(freeTiles)
+        distances = []
+        for tile in freeTiles:
+            if tile != None:
+                distances.append(self.calculateDistance(tile, self.targetPos))
+            else:
+                distances.append(100000)
+        """Change the direction of the ghost"""
+        #Return the index of the minimum value in the list.
+        index = distances.index(min(distances))
+        if index == 0:
+            self.direction = [0, -1]
+        elif index == 1:
+            self.direction = [-1, 0]
+        elif index == 2:
+            self.direction = [0, 1]
+        elif index == 3:
+            self.direction = [1, 0]
+        self.cornerCount = 0
+
     def updateSprite(self):
         #Animates the player sprite.
         if self.checkAnimation():
             #Check if the ghost is in chase mode, and therefore uses a default sprite.
             if self.mode == 0:
                 #Generate a location for the position of the sprite within the list.
-                spritePos = self.ghostNo * 4 + 2 * self.direction[1]
+                spritePos = self.ghostNo * 4 + 2 * abs(self.direction[1])
                 #Test whether one of the values within the direction is negative, and if so, use the next location along in the list.
                 valueTest = list(map(lambda x: abs(x), self.direction))
                 if valueTest != self.direction:
@@ -130,8 +161,26 @@ class Ghost():
             return False
 
     def move(self):
-        self.x += self.direction[0]
-        self.y += self.direction[1]
+        #Check the ghost has finished turning a corner.
+        if self.cornerCount == 3:
+            self.x += self.direction[0]
+            self.y += self.direction[1]
+        else:
+            self.cornerCount += 1
+
+    def calculateDistance(self, tile1, tile2):
+        #Calculate the distance between two board tiles using pythagoras.
+        xdist = abs(tile1[0] - tile2[0])
+        ydist = abs(tile1[1] - tile2[1])
+        distance = (xdist ** 2 + ydist ** 2) ** 0.5
+        return distance
+
+    def leftTile(self):
+        if self.tile != self.oldTile:
+            self.oldTile = self.tile
+            return True
+        else:
+            return False
 
 
 class Pinky():

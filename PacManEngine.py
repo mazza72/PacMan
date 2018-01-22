@@ -69,6 +69,7 @@ class PacManEngine:
             if self.checkPlayerMove(direction):
                 self.player.move(direction)
                 self.player.tile = self.board.findTile(self.player.x, self.player.y)
+                #print(self.player.tile)
 
         #Code for testing player coordinates. Remove later.
         if keysPressed[pygame.K_RETURN]:
@@ -96,6 +97,14 @@ class PacManEngine:
         self.takePlayerTurn()
 
         self.takeGhostTurn()
+
+        #Check if enough dots have been eaten to generate fruit.
+        if self.dotCount == 70 or self.dotCount == 170:
+            self.fruit = True
+            #Create a time limit between 9 and 10 seconds for the fruit to exist for.
+            self.fruitLimit = 9 + random.uniform(0,1)
+            #Find the time the fruit was created at.
+            self.fruitTime = time.time()
 
         #Sets the maximum framerate to 60 fps.
         self.clock.tick(60)
@@ -139,22 +148,28 @@ class PacManEngine:
                 self.score += DOTSCORE
                 self.dotCount += 1
 
-                #Check if enough dots have been eaten to generate fruit.
-                if self.dotCount == 70 or self.dotCount == 170:
-                    self.fruit = True
-                    #Create a time limit between 9 and 10 seconds for the fruit to exist for.
-                    self.fruitLimit = 9 + random.uniform(0,1)
-                    #Find the time the fruit was created at.
-                    self.fruitTime = time.time()
-
 
     def takeGhostTurn(self):
         """Testing"""
         if self.ghost.checkEaten(self.player):
             self.player.startDeath()
 
+        #Check if the ghost is centred on a tile.
+        if self.board.checkTileCentre(self.ghost.x, self.ghost.y):
+            #Check if the ghost has changed tiles since the last junction.
+            if self.ghost.leftTile():
+                #Find whether the ghost is at a junction, and where the free tiles are.
+                atJunction, freeTiles = self.board.checkJunction(self.ghost.tile)
+                if atJunction:
+                    #Update the ghost's target in order to decide the direction.
+                    self.ghost.getTarget(self.player)
+                    #Choose the direction that gives the best outcome.
+                    self.ghost.useJunction(freeTiles)
+
+        #Move the ghost in the set direction and animate it.
         self.ghost.move()
         self.ghost.updateSprite()
+        #Update the ghost's tile.
         self.ghost.tile = self.board.findTile(self.ghost.x, self.ghost.y)
 
 
