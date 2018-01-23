@@ -86,14 +86,17 @@ class Player():
                 self.deathCount += 1
         #If the death animation has been completed:
         else:
-            #Reset the counter.
-            self.deathCount = 0
             #Return the player to starting conditions.
-            self.y = 232
-            self.x = 161
-            self.tile = (23,14)
-            self.spriteLoc = START
-            self.updateCount = 0
+            self.startConditions()
+
+    def startConditions(self):
+        #Returns the player to its starting point.
+        self.y = 232
+        self.x = 161
+        self.tile = (23,14)
+        self.spriteLoc = START
+        self.updateCount = 0
+        self.deathCount = 0
 
     def startDeath(self):
         #Begins the death animation and resets the animation counter.

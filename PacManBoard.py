@@ -1,5 +1,7 @@
 """Class & methods that define the board and allow it to be used"""
 
+import copy
+
 #Array with the state of each tile in the grid. (Possible to move to, PacDot existence)
 BOARDTEMPLATE = [[(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),
 (False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False),(False, False)],
@@ -67,7 +69,8 @@ BOARDTEMPLATE = [[(False, False),(False, False),(False, False),(False, False),(F
 class Board():
     def __init__(self):
         self.bonuses = 2
-        self.tiles = BOARDTEMPLATE
+        self.tiles = copy.deepcopy(BOARDTEMPLATE)
+        self.pelletList = [((3,26), True), ((3,1), True), ((23,26), True), ((23,1), True)]
 
     def findTile(self, objx, objy):
         #Check if the object's centre lies in a specific row.
@@ -110,6 +113,13 @@ class Board():
             return True
         else:
             return False
+
+    def eatPellet(self, playerTile):
+        for pellet in range(len(self.pelletList)):
+            if playerTile == self.pelletList[pellet][0]:
+                del self.pelletList[pellet]
+                return True
+        return False
 
     def checkTileCentre(self, objx, objy):
         #Calculate the distance of the object from the 4x4 centre of a tile.

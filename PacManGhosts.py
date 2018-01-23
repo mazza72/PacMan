@@ -105,9 +105,7 @@ class Ghost():
             entryTile = 2 + abs(self.direction[0])
         else:
             entryTile = self.direction[0]
-        print(entryTile)
         freeTiles[entryTile] = None
-        print(freeTiles)
         distances = []
         for tile in freeTiles:
             if tile != None:
@@ -143,7 +141,7 @@ class Ghost():
                     self.spriteLoc = THREELEG[spritePos]
                 else:
                     self.spriteLoc = FOURLEG[spritePos]
-            elif self.mode == 1:
+            elif self.mode == 2:
                 if self.spriteLoc == FRIGHTENED1:
                     self.spriteLoc = FRIGHTENED2
                 else:

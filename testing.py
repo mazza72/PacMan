@@ -2,4 +2,4 @@ import PacManEngine
 
 game = PacManEngine.PacManEngine()
 while True:
-    game.gameloop()
+    game.playLevels()

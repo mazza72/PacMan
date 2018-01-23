@@ -46,6 +46,14 @@ class PacManEngine:
         self.fruit = False
         self.level = 1
 
+    def playLevels(self):
+        while True:
+            self.gameloop()
+            if self.dotCount == 240 and self.board.pelletList == []:
+                self.level += 1
+                self.player.startConditions()
+                self.board = PacManBoard.Board()
+
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
         directions = []
@@ -69,7 +77,6 @@ class PacManEngine:
             if self.checkPlayerMove(direction):
                 self.player.move(direction)
                 self.player.tile = self.board.findTile(self.player.x, self.player.y)
-                #print(self.player.tile)
 
         #Code for testing player coordinates. Remove later.
         if keysPressed[pygame.K_RETURN]:
@@ -148,6 +155,10 @@ class PacManEngine:
                 self.score += DOTSCORE
                 self.dotCount += 1
 
+            elif self.board.eatPellet(self.player.tile):
+                self.score += PELLETSCORE
+                self.ghost.updateMode(2)
+
 
     def takeGhostTurn(self):
         """Testing"""
@@ -188,3 +199,4 @@ class PacManEngine:
 
         #Use the board tiles to draw the PacDots.
         PacManGraphics.drawPacDots(self.display, self.board.tiles)
+        PacManGraphics.drawPellets(self.display, self.gameSprites, self.board.pelletList)

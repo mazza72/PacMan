@@ -15,6 +15,7 @@ OUTLINESPACING = 45
 
 #List containing the locations of each fruit.
 FRUITS = [(489,49,14,14), (505,49,14,14), (521,49,14,14), (537,49,14,14), (553,49,14,14), (569,49,14,14), (585,49,14,14), (601,49,14,14)]
+PELLET = (8,184,8,8)
 
 #Colour constants
 BLACK  = (0,0,0)
@@ -87,6 +88,12 @@ def drawFruitsRow(display, spriteSheet, level):
         sprite = spriteSheet.image_at(FRUITS[fruit])
         #Decrease the x coordinate by 16 pixel intervals for each fruit.
         display.blit(sprite, (250 - fruit * 16,294))
+
+def drawPellets(display, spriteSheet, pelletList):
+    sprite = spriteSheet.image_at(PELLET)
+    for pellet in pelletList:
+        if pellet[1]:
+            display.blit(sprite, (49 + 8 * pellet[0][1], 45 + 8 * pellet[0][0]))
 
 def drawFruit(display, spritesSheet, level):
     #Draw the fruit associated with the current level at a constant position.
