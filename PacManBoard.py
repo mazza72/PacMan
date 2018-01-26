@@ -97,13 +97,18 @@ class Board():
             return False
 
     def checkTunnel(self, objToCheck):
-        #Check if a ghost or the player has passed through a tunnel to the other side of the board.
-        #Compare the x coordinate of the object to the left side of the board.
-        if objToCheck.x == 57:
-            objToCheck.x = 266
-        #Compare the x coordinate of the object to the right side of the board.
-        elif objToCheck.x == 266:
-            objToCheck.x = 57
+        #Check if the ghost or player is within the tunnel.
+        if objToCheck.tile[0] == 14:
+            if objToCheck.tile[1] < 5 or objToCheck.tile[1] > 21:
+                #Check if a ghost or the player has passed through a tunnel to the other side of the board.
+                #Compare the x coordinate of the object to the left side of the board.
+                if objToCheck.x <= 58:
+                    objToCheck.x = 265
+                #Compare the x coordinate of the object to the right side of the board.
+                elif objToCheck.x >= 265:
+                    objToCheck.x = 58
+                return True
+        return False
 
     def eatDot(self, playerTile):
         #Use the playerTile tuple to access the relevent tile, and look at it's value for whether there is a PacDot there.

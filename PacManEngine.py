@@ -9,9 +9,6 @@ import PacManGhosts
 #import required modules
 import sys, pygame, random, time
 
-#Constant base speed for player and ghosts.
-BASESPEED = 1.46
-
 #Constants for updating score.
 DOTSCORE = 10
 PELLETSCORE = 50
@@ -47,12 +44,15 @@ class PacManEngine:
         self.level = 1
 
     def playLevels(self):
+        self.setSpeeds()
         while True:
             self.gameloop()
             if self.dotCount == 240 and self.board.pelletList == []:
                 self.level += 1
                 self.player.startConditions()
                 self.board = PacManBoard.Board()
+                self.dotCount = 0
+                self.setSpeeds()
 
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
@@ -86,13 +86,13 @@ class PacManEngine:
     def checkPlayerMove(self, direction):
         #Check that the move is valid using the board's checkValidPosition function.
         if direction == "right":
-            return self.board.checkValidPosition(self.player.x + 1, self.player.y)
+            return self.board.checkValidPosition(self.player.x + self.player.speed, self.player.y)
         elif direction == "left":
-            return self.board.checkValidPosition(self.player.x - 1, self.player.y)
+            return self.board.checkValidPosition(self.player.x - self.player.speed, self.player.y)
         elif direction == "up":
-            return self.board.checkValidPosition(self.player.x, self.player.y - 1)
+            return self.board.checkValidPosition(self.player.x, self.player.y - self.player.speed)
         else:
-            return self.board.checkValidPosition(self.player.x, self.player.y + 1)
+            return self.board.checkValidPosition(self.player.x, self.player.y + self.player.speed)
 
     def gameloop(self):
         #Get the events that have occurred, and check to see if the user wants to quit.
@@ -101,9 +101,13 @@ class PacManEngine:
                 pygame.quit()
                 sys.exit(0)
 
-        self.takePlayerTurn()
+        """Check if a ghost has died"""
+        if self.player.checkDying():
+            self.player.deathSequence()
 
-        self.takeGhostTurn()
+        else:
+            self.takePlayerTurn()
+            self.takeGhostTurn()
 
         #Check if enough dots have been eaten to generate fruit.
         if self.dotCount == 70 or self.dotCount == 170:
@@ -139,10 +143,7 @@ class PacManEngine:
         pygame.display.update()
 
     def takePlayerTurn(self):
-        #If the player is carrying out the death animation the checks for actions may be skipped.
-        if self.player.checkDying():
-            self.player.deathSequence()
-        else:
+        if not self.player.checkEating():
             """Will need to be checked to see if the user is playing"""
             #Check to see if the player wants to move.
             self.getPlayerInput()
@@ -154,16 +155,21 @@ class PacManEngine:
             if self.board.eatDot(self.player.tile):
                 self.score += DOTSCORE
                 self.dotCount += 1
+                self.player.pauseToEat(0)
 
             elif self.board.eatPellet(self.player.tile):
                 self.score += PELLETSCORE
                 self.ghost.updateMode(2)
+                self.player.pauseToEat(1)
 
 
     def takeGhostTurn(self):
         """Testing"""
         if self.ghost.checkEaten(self.player):
-            self.player.startDeath()
+            if self.ghost.mode == 2:
+                self.ghost.startDeath()
+            elif self.ghost.mode != 3:
+                self.player.startDeath()
 
         #Check if the ghost is centred on a tile.
         if self.board.checkTileCentre(self.ghost.x, self.ghost.y):
@@ -179,24 +185,64 @@ class PacManEngine:
 
         #Move the ghost in the set direction and animate it.
         self.ghost.move()
+        if self.board.checkTunnel(self.ghost):
+            self.ghostTunnel()
+        else:
+            self.setSpeeds()
         self.ghost.updateSprite()
         #Update the ghost's tile.
         self.ghost.tile = self.board.findTile(self.ghost.x, self.ghost.y)
 
+    def setSpeeds(self):
+        #Assign object speeds based on the current level.
+        if self.ghost.mode != 2:
+            if self.level == 1:
+                self.player.setSpeed(0.8)
+                self.ghost.setSpeed(0.75)
+            elif self.level <= 4:
+                self.player.setSpeed(0.9)
+                self.ghost.setSpeed(0.85)
+            elif self.level <= 20:
+                self.player.setSpeed(1)
+                self.ghost.setSpeed(0.95)
+            else:
+                self.player.setSpeed(0.9)
+                self.ghost.setSpeed(0.95)
+        else:
+            if self.level == 1:
+                self.player.setSpeed(0.9)
+                self.ghost.setSpeed(0.5)
+            elif self.level <= 4:
+                self.player.setSpeed(0.95)
+                self.ghost.setSpeed(0.55)
+            elif self.level <= 20:
+                self.player.setSpeed(1)
+                self.ghost.setSpeed(0.6)
+
+    def ghostTunnel(self):
+        if self.level == 1:
+            self.ghost.setSpeed(0.4)
+        elif self.level <= 4:
+            self.ghost.setSpeed(0.45)
+        elif self.level <= 20:
+            self.ghost.setSpeed(0.5)
+        else:
+            self.ghost.setSpeed(0.5)
 
     def drawObjects(self):
         #Calls the required draw functions for objects that always exist.
 
-        #Draw the player and board.
+        #Draw the board.
         PacManGraphics.drawboard(self.display, self.background)
-        PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
-
-        #Draw the ghosts.
-        PacManGraphics.drawSprite(self.display, self.ghost.x - 7, self.ghost.y - 7, self.gameSprites, self.ghost.spriteLoc)
-
         #Add labels to the edge of the board - lives, score etc.
         PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
 
         #Use the board tiles to draw the PacDots.
         PacManGraphics.drawPacDots(self.display, self.board.tiles)
         PacManGraphics.drawPellets(self.display, self.gameSprites, self.board.pelletList)
+
+        #Draw the player.
+        PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
+
+        #Draw the ghosts.
+        PacManGraphics.drawSprite(self.display, self.ghost.x - 7, self.ghost.y - 7, self.gameSprites, self.ghost.spriteLoc)

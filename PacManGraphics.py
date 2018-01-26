@@ -19,7 +19,7 @@ PELLET = (8,184,8,8)
 
 #Colour constants
 BLACK  = (0,0,0)
-DOTCOLOUR = (88,83,87)
+DOTCOLOUR = (250,185,176)
 WHITE = (255,255,255)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.

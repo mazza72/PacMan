@@ -31,26 +31,30 @@ class Player():
         self.deathCount = 0
         #The number of lives the player has.
         self.lives = 3
+        self.speed = 0
+        #Set a counter and limit for when the player pauses to eat a Pac Dot or Power Pellet.
+        self.eatDelay = 0
+        self.delayCount = 0
 
     def move(self, direction):
         #Updates the position of the player based on the direction it is moving.
         if direction == "right":
-            self.x += 1
+            self.x += self.speed
             self.updateSprite(0)
             self.direction = 0
 
         elif direction == "left":
-            self.x -= 1
+            self.x -= self.speed
             self.updateSprite(1)
             self.direction = 1
 
         elif direction == "up":
-            self.y -= 1
+            self.y -= self.speed
             self.updateSprite(2)
             self.direction = 2
 
         else:
-            self.y += 1
+            self.y += self.speed
             self.updateSprite(3)
             self.direction = 3
 
@@ -112,4 +116,22 @@ class Player():
         if self.deathCount > 0:
             return True
         else:
+            return False
+
+    def setSpeed(self, reduction):
+        self.speed = 1.46 * reduction
+
+    def pauseToEat(self, dotType):
+        if dotType == 0:
+            self.eatDelay = 1
+        else:
+            self.eatDelay = 3
+
+    def checkEating(self):
+        if self.delayCount < self.eatDelay:
+            self.delayCount += 1
+            return True
+        else:
+            self.delayCount = 0
+            self.eatDelay = 0
             return False

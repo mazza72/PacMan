@@ -50,6 +50,8 @@ FRIGHTENED2 = (601, 65, 14, 14)
 FRIGHTENED3 = (617, 65, 14, 14)
 FRIGHTENED4 = (633, 65, 14, 14)
 
+DEATHSPRITES = [(585, 81, 14, 14),(601, 81, 14, 14),(633, 81, 14, 14),(617, 81, 14, 14)]
+
 """Possibly split into separate lists that are stored within the object itself?"""
 FOURLEG = [BLINKYRIGHT1, BLINKYLEFT1, BLINKYDOWN1, BLINKYUP1, PINKYRIGHT1, PINKYLEFT1, PINKYDOWN1, PINKYUP1, INKYRIGHT1, INKYLEFT1, INKYDOWN1, INKYUP1, CLYDERIGHT1, CLYDELEFT1, CLYDEDOWN1, CLYDEUP1]
 THREELEG = [BLINKYRIGHT2, BLINKYLEFT2, BLINKYDOWN2, BLINKYUP2, PINKYRIGHT2, PINKYLEFT2, PINKYDOWN2, PINKYUP2, INKYRIGHT2, INKYLEFT2, INKYDOWN2, INKYUP2, CLYDERIGHT2, CLYDELEFT2, CLYDEDOWN2, CLYDEUP2]
@@ -74,6 +76,7 @@ class Ghost():
         self.updateCount = 0
         #Store a counter for the delay when cornering.
         self.cornerCount = 3
+        self.speed = 0
 
     def getTarget(self, player):
         """Currently returns blinky's target, following the player."""
@@ -89,6 +92,10 @@ class Ghost():
             return True
         else:
             return False
+
+    def startDeath(self):
+        self.mode = 3
+        """Add transition to death sprite???"""
 
     def updateMode(self, mode):
         #Store the current mode in case the ghost needs to return to it.
@@ -112,7 +119,6 @@ class Ghost():
                 distances.append(self.calculateDistance(tile, self.targetPos))
             else:
                 distances.append(100000)
-        """Change the direction of the ghost"""
         #Return the index of the minimum value in the list.
         index = distances.index(min(distances))
         if index == 0:
@@ -146,6 +152,15 @@ class Ghost():
                     self.spriteLoc = FRIGHTENED2
                 else:
                     self.spriteLoc = FRIGHTENED1
+            elif self.mode == 3:
+                #Generate a location for the position of the sprite within the list.
+                spritePos = 2 * abs(self.direction[1])
+                #Test whether one of the values within the direction is negative, and if so, use the next location along in the list.
+                valueTest = list(map(lambda x: abs(x), self.direction))
+                if valueTest != self.direction:
+                    spritePos += 1
+                #Find the required sprites from the deathsprites list.
+                self.spriteLoc = DEATHSPRITES[spritePos]
 
     def checkAnimation(self):
         #Checks if 5 ticks have passed since the last sprite change.
@@ -179,6 +194,9 @@ class Ghost():
             return True
         else:
             return False
+
+    def setSpeed(self, proportion):
+        self.speed = 1.46 * proportion
 
 
 class Pinky():
