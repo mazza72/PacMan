@@ -22,6 +22,7 @@ class Player():
         #Set the starting position of the player.
         self.y = 232
         self.x = 161
+        self.direction = 0
         self.tile = (23,14)
         #Set the player's sprite to the starting sprite.
         self.spriteLoc = START

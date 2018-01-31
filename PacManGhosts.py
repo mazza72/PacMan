@@ -56,6 +56,10 @@ DEATHSPRITES = [(585, 81, 14, 14),(601, 81, 14, 14),(633, 81, 14, 14),(617, 81, 
 FOURLEG = [BLINKYRIGHT1, BLINKYLEFT1, BLINKYDOWN1, BLINKYUP1, PINKYRIGHT1, PINKYLEFT1, PINKYDOWN1, PINKYUP1, INKYRIGHT1, INKYLEFT1, INKYDOWN1, INKYUP1, CLYDERIGHT1, CLYDELEFT1, CLYDEDOWN1, CLYDEUP1]
 THREELEG = [BLINKYRIGHT2, BLINKYLEFT2, BLINKYDOWN2, BLINKYUP2, PINKYRIGHT2, PINKYLEFT2, PINKYDOWN2, PINKYUP2, INKYRIGHT2, INKYLEFT2, INKYDOWN2, INKYUP2, CLYDERIGHT2, CLYDELEFT2, CLYDEDOWN2, CLYDEUP2]
 
+#Constant for the number of dots left when blnky increases his speed.
+ELROYDOTS = [10,15,20,20,20,25,25,25,30,30,30,40,40,40,50,50,50,50,60]
+ELROYPROP = [0.85,0.95,0.95,0.95,1.05]
+
 class Ghost():
     def __init__(self):
         #Set the mode of the ghost to chase mode. 1 is scatter and 2 is frightened modes. 3 is used when the ghost has been eaten.
@@ -77,6 +81,8 @@ class Ghost():
         #Store a counter for the delay when cornering.
         self.cornerCount = 3
         self.speed = 0
+        """Testing"""
+        self.ghostHouse = False
 
     def getTarget(self, player):
         """Currently returns blinky's target, following the player."""
@@ -84,7 +90,6 @@ class Ghost():
             self.targetPos = player.tile
         elif self.mode == 1:
             self.targetPos = (-2, 3)
-        return self.targetPos
 
     def checkEaten(self, player):
         #Check for a collision with the player.
@@ -174,12 +179,15 @@ class Ghost():
             return False
 
     def move(self):
-        #Check the ghost has finished turning a corner.
-        if self.cornerCount == 3:
-            self.x += self.direction[0]
-            self.y += self.direction[1]
+        if self.ghostHouse:
+            self.leaveHouse()
         else:
-            self.cornerCount += 1
+            #Check the ghost has finished turning a corner.
+            if self.cornerCount == 3:
+                self.x += self.direction[0]
+                self.y += self.direction[1]
+            else:
+                self.cornerCount += 1
 
     def calculateDistance(self, tile1, tile2):
         #Calculate the distance between two board tiles using pythagoras.
@@ -199,7 +207,44 @@ class Ghost():
         self.speed = 1.46 * proportion
 
 
-class Pinky():
+    def leaveHouse(self):
+        if self.x < 161:
+            self.x += 1
+        elif self.x > 161:
+            self.x -= 1
+        elif self.y > 136:
+            self.y -= 1
+        else:
+            self.ghostHouse = False
+
+class Blinky(Ghost):
+    def elroySpeed(self, dotCount, level):
+        if level >= 19:
+            if dotCount >= 120:
+                self.setSpeed(1)
+            elif dotCount >= 180:
+                self.setSpeed(1.05)
+            self.setSpeed(1.05)
+        else:
+            if dotCount > 240 - 2 * ELROYDOTS[level - 1]:
+                self.setSpeed(ELROYPROP[level - 1] - 0.05)
+            elif dotCount > 240 - ELROYDOTS[level - 1]:
+                self.setSpeed(ELROYPROP[level - 1])
+
+class Pinky(Ghost):
+    def __init__(self):
+        super(Pinky, self).__init__()
+        #Default sprite is blinky's right movement.
+        self.spriteLoc = PINKYRIGHT1
+        #Stores the number of the ghost to be used for generating sprites etc.
+        self.ghostNo = 1
+        #Store Pinky's hard-coded start location.
+        self.x = 161
+        self.y = 144
+        self.tile = (12,13)
+        self.oldTile = (12,13)
+        self.ghostHouse = True
+        
     def getTarget(self, player):
         if player.direction == 0:
             self.targetPos = (player.tile[0], player.tile[1] + 2)
@@ -209,4 +254,30 @@ class Pinky():
             self.targetPos = (player.tile[0] - 1, player.tile[1])
         else:
             self.targetPos = (player.tile[0] + 1, player.tile[1])
-        return targetPos
+        return self.targetPos
+
+class Inky(Ghost):
+    def __init__(self):
+        super(Inky, self).__init__()
+        #Default sprite is blinky's right movement.
+        self.spriteLoc = INKYRIGHT1
+        #Stores the number of the ghost to be used for generating sprites etc.
+        self.ghostNo = 2
+        #Store Inky's hard-coded start location.
+        self.x = 169
+        self.y = 144
+        self.tile = (12,14)
+        self.oldTile = (12,14)
+
+class Clyde(Ghost):
+    def __init__(self):
+        super(Clyde, self).__init__()
+        #Default sprite is blinky's right movement.
+        self.spriteLoc = CLYDERIGHT1
+        #Stores the number of the ghost to be used for generating sprites etc.
+        self.ghostNo = 3
+        #Store Clyde's hard-coded start location.
+        self.x = 153
+        self.y = 144
+        self.tile = (12,13)
+        self.oldTile = (12,13)

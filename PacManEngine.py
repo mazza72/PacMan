@@ -26,8 +26,7 @@ class PacManEngine:
 
         self.board = PacManBoard.Board()
 
-        """Testing for ghosts"""
-        self.ghost = PacManGhosts.Ghost()
+        self.ghosts = [PacManGhosts.Blinky(), PacManGhosts.Pinky()]#, PacManGhosts.Inky(), PacManGhosts.Clyde()]
 
         #Call the graphics function that creates the window and font.
         self.display, self.font, self.background, self.gameSprites = PacManGraphics.setupDisplay()
@@ -159,75 +158,89 @@ class PacManEngine:
 
             elif self.board.eatPellet(self.player.tile):
                 self.score += PELLETSCORE
-                self.ghost.updateMode(2)
+                for ghost in self.ghosts:
+                    ghost.updateMode(2)
                 self.player.pauseToEat(1)
 
 
     def takeGhostTurn(self):
         """Testing"""
-        if self.ghost.checkEaten(self.player):
-            if self.ghost.mode == 2:
-                self.ghost.startDeath()
-            elif self.ghost.mode != 3:
-                self.player.startDeath()
+        for ghost in self.ghosts:
+            print(ghost.ghostNo)
+            if ghost.checkEaten(self.player):
+                if ghost.mode == 2:
+                    ghost.startDeath()
+                elif ghost.mode != 3:
+                    self.player.startDeath()
 
-        #Check if the ghost is centred on a tile.
-        if self.board.checkTileCentre(self.ghost.x, self.ghost.y):
-            #Check if the ghost has changed tiles since the last junction.
-            if self.ghost.leftTile():
-                #Find whether the ghost is at a junction, and where the free tiles are.
-                atJunction, freeTiles = self.board.checkJunction(self.ghost.tile)
-                if atJunction:
-                    #Update the ghost's target in order to decide the direction.
-                    self.ghost.getTarget(self.player)
-                    #Choose the direction that gives the best outcome.
-                    self.ghost.useJunction(freeTiles)
+            #Check if the ghost is centred on a tile.
+            if self.board.checkTileCentre(ghost.x, ghost.y):
+                #Check if the ghost has changed tiles since the last junction.
+                if ghost.leftTile():
+                    #Find whether the ghost is at a junction, and where the free tiles are.
+                    atJunction, freeTiles = self.board.checkJunction(ghost.tile)
+                    if atJunction:
+                        #Update the ghost's target in order to decide the direction.
+                        ghost.getTarget(self.player)
+                        #Choose the direction that gives the best outcome.
+                        ghost.useJunction(freeTiles)
 
-        #Move the ghost in the set direction and animate it.
-        self.ghost.move()
-        if self.board.checkTunnel(self.ghost):
-            self.ghostTunnel()
-        else:
-            self.setSpeeds()
-        self.ghost.updateSprite()
-        #Update the ghost's tile.
-        self.ghost.tile = self.board.findTile(self.ghost.x, self.ghost.y)
+            #Move the ghost in the set direction and animate it.
+            ghost.move()
+            if self.board.checkTunnel(ghost):
+                self.ghostTunnel()
+            else:
+                self.setSpeeds()
+            ghost.updateSprite()
+            #Update the ghost's tile.
+            ghost.tile = self.board.findTile(ghost.x, ghost.y)
 
     def setSpeeds(self):
         #Assign object speeds based on the current level.
-        if self.ghost.mode != 2:
+        if self.ghosts[0].mode != 2:
             if self.level == 1:
                 self.player.setSpeed(0.8)
-                self.ghost.setSpeed(0.75)
+                for ghost in self.ghosts:
+                    ghost.setSpeed(0.75)
             elif self.level <= 4:
                 self.player.setSpeed(0.9)
-                self.ghost.setSpeed(0.85)
+                for ghost in self.ghosts:
+                    self.ghost.setSpeed(0.85)
             elif self.level <= 20:
                 self.player.setSpeed(1)
-                self.ghost.setSpeed(0.95)
+                for ghost in self.ghosts:
+                    self.ghost.setSpeed(0.95)
             else:
                 self.player.setSpeed(0.9)
-                self.ghost.setSpeed(0.95)
+                for ghost in self.ghosts:
+                    self.ghost.setSpeed(0.95)
         else:
             if self.level == 1:
                 self.player.setSpeed(0.9)
-                self.ghost.setSpeed(0.5)
+                for ghost in self.ghosts:
+                    self.ghost.setSpeed(0.5)
             elif self.level <= 4:
                 self.player.setSpeed(0.95)
-                self.ghost.setSpeed(0.55)
+                for ghost in self.ghosts:
+                    self.ghost.setSpeed(0.55)
             elif self.level <= 20:
                 self.player.setSpeed(1)
-                self.ghost.setSpeed(0.6)
+                for ghost in self.ghosts:
+                    self.ghost.setSpeed(0.6)
 
     def ghostTunnel(self):
         if self.level == 1:
-            self.ghost.setSpeed(0.4)
+            for ghost in self.ghosts:
+                ghost.setSpeed(0.4)
         elif self.level <= 4:
-            self.ghost.setSpeed(0.45)
+            for ghost in self.ghosts:
+                ghost.setSpeed(0.45)
         elif self.level <= 20:
-            self.ghost.setSpeed(0.5)
+            for ghost in self.ghosts:
+                ghost.setSpeed(0.5)
         else:
-            self.ghost.setSpeed(0.5)
+            for ghost in self.ghosts:
+                ghost.setSpeed(0.5)
 
     def drawObjects(self):
         #Calls the required draw functions for objects that always exist.
@@ -245,4 +258,5 @@ class PacManEngine:
         PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
 
         #Draw the ghosts.
-        PacManGraphics.drawSprite(self.display, self.ghost.x - 7, self.ghost.y - 7, self.gameSprites, self.ghost.spriteLoc)
+        for ghost in self.ghosts:
+            PacManGraphics.drawSprite(self.display, ghost.x - 7, ghost.y - 7, self.gameSprites, ghost.spriteLoc)
