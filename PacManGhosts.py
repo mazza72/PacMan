@@ -60,6 +60,9 @@ THREELEG = [BLINKYRIGHT2, BLINKYLEFT2, BLINKYDOWN2, BLINKYUP2, PINKYRIGHT2, PINK
 ELROYDOTS = [10,15,20,20,20,25,25,25,30,30,30,40,40,40,50,50,50,50,60]
 ELROYPROP = [0.85,0.95,0.95,0.95,1.05]
 
+#List containing the scatter tiles for each of the ghosts.
+SCATTERTILES = [(-2, 29), (-2,3), (30,29), (30,1)]
+
 class Ghost():
     def __init__(self):
         #Set the mode of the ghost to chase mode. 1 is scatter and 2 is frightened modes. 3 is used when the ghost has been eaten.
@@ -76,6 +79,8 @@ class Ghost():
         self.oldTile = (11,13)
         #Store the direction as moving left for when the ghost initially moves.
         self.direction = [-1, 0]
+        #Store a boolean value for if the direction of the ghost has changed in the last tick.
+        self.directionChange = False
         #Store a counter for the number of ticks between animations.
         self.updateCount = 0
         #Store a counter for the delay when cornering.
@@ -84,12 +89,12 @@ class Ghost():
         """Testing"""
         self.ghostHouse = False
 
-    def getTarget(self, player):
+    def getTarget(self, player, blinkyPos):
         """Currently returns blinky's target, following the player."""
         if self.mode == 0:
             self.targetPos = player.tile
         elif self.mode == 1:
-            self.targetPos = (-2, 3)
+            self.targetPos = SCATTERTILES[self.ghostNo]
 
     def checkEaten(self, player):
         #Check for a collision with the player.
@@ -110,6 +115,7 @@ class Ghost():
         #Reverse the direction of the ghost unless it is leaving frightened mode.
         if self.lastmode != 2:
             self.direction = list(map((lambda x: -1 * x), self.direction))
+            self.directionChange = True
 
     def useJunction(self, freeTiles):
         valueTest = list(map(lambda x: abs(x), self.direction))
@@ -179,15 +185,12 @@ class Ghost():
             return False
 
     def move(self):
-        if self.ghostHouse:
-            self.leaveHouse()
+        #Check the ghost has finished turning a corner.
+        if self.cornerCount == 3:
+            self.x += self.direction[0]
+            self.y += self.direction[1]
         else:
-            #Check the ghost has finished turning a corner.
-            if self.cornerCount == 3:
-                self.x += self.direction[0]
-                self.y += self.direction[1]
-            else:
-                self.cornerCount += 1
+            self.cornerCount += 1
 
     def calculateDistance(self, tile1, tile2):
         #Calculate the distance between two board tiles using pythagoras.
@@ -197,8 +200,9 @@ class Ghost():
         return distance
 
     def leftTile(self):
-        if self.tile != self.oldTile:
+        if self.tile != self.oldTile or self.directionChange:
             self.oldTile = self.tile
+            self.directionChange = False
             return True
         else:
             return False
@@ -244,17 +248,21 @@ class Pinky(Ghost):
         self.tile = (12,13)
         self.oldTile = (12,13)
         self.ghostHouse = True
-        
-    def getTarget(self, player):
-        if player.direction == 0:
-            self.targetPos = (player.tile[0], player.tile[1] + 2)
-        elif player.direction == 1:
-            self.targetPos = (player.tile[0], player.tile[1] - 2)
-        elif player.direction == 2:
-            self.targetPos = (player.tile[0] - 1, player.tile[1])
+
+    def getTarget(self, player, blinkyPos):
+        #If in chase mode, calculate the tile two ahead of where the player is looking.
+        if self.mode == 0:
+            if player.direction == 0:
+                self.targetPos = (player.tile[0], player.tile[1] + 2)
+            elif player.direction == 1:
+                self.targetPos = (player.tile[0], player.tile[1] - 2)
+            elif player.direction == 2:
+                self.targetPos = (player.tile[0] - 1, player.tile[1])
+            else:
+                self.targetPos = (player.tile[0] + 1, player.tile[1])
+        #If in scatter mode, use the ghost class version of the getTarget function.
         else:
-            self.targetPos = (player.tile[0] + 1, player.tile[1])
-        return self.targetPos
+            super(Pinky, self).getTarget(player, blinkyPos)
 
 class Inky(Ghost):
     def __init__(self):
@@ -268,6 +276,25 @@ class Inky(Ghost):
         self.y = 144
         self.tile = (12,14)
         self.oldTile = (12,14)
+        #Values for if the ghost is in the ghost house and how long they have been there.
+        self.ghostHouse = True
+        self.houseCounter = 0
+
+    def getTarget(self, player, blinkyPos):
+        if self.mode == 0:
+            if player.direction == 0:
+                pinkyTarget = (player.tile[0], player.tile[1] + 2)
+            elif player.direction == 1:
+                pinkyTarget = (player.tile[0], player.tile[1] - 2)
+            elif player.direction == 2:
+                pinkyTarget = (player.tile[0] - 1, player.tile[1])
+            else:
+                pinkyTarget = (player.tile[0] + 1, player.tile[1])
+            targetx = pinkyTarget[1] + 2 * (pinkyTarget[1] - blinkyPos[1])
+            targety = pinkyTarget[0] + 2 * (pinkyTarget[0] - blinkyPos[0])
+            self.targetPos = (targety, targetx)
+        else:
+            super(Inky, self).getTarget(player, blinkyPos)
 
 class Clyde(Ghost):
     def __init__(self):
@@ -281,3 +308,13 @@ class Clyde(Ghost):
         self.y = 144
         self.tile = (12,13)
         self.oldTile = (12,13)
+        self.ghostHouse = True
+
+    def getTarget(self, player, blinkyPos):
+        if self.mode == 0:
+            if self.calculateDistance(player.tile, self.tile) <= 8:
+                self.targetPos = (30,1)
+            else:
+                self.targetPos = player.tile
+        else:
+            super(Clyde, self).getTarget(player, blinkyPos)

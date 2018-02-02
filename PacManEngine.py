@@ -7,7 +7,7 @@ import PacManPlayer
 import PacManGhosts
 
 #import required modules
-import sys, pygame, random, time
+import sys, pygame, random, time, math
 
 #Constants for updating score.
 DOTSCORE = 10
@@ -26,7 +26,7 @@ class PacManEngine:
 
         self.board = PacManBoard.Board()
 
-        self.ghosts = [PacManGhosts.Blinky(), PacManGhosts.Pinky()]#, PacManGhosts.Inky(), PacManGhosts.Clyde()]
+        self.ghosts = [PacManGhosts.Blinky(), PacManGhosts.Pinky(), PacManGhosts.Inky(), PacManGhosts.Clyde()]
 
         #Call the graphics function that creates the window and font.
         self.display, self.font, self.background, self.gameSprites = PacManGraphics.setupDisplay()
@@ -44,14 +44,31 @@ class PacManEngine:
 
     def playLevels(self):
         self.setSpeeds()
-        while True:
-            self.gameloop()
+        while self.gameloop():
             if self.dotCount == 240 and self.board.pelletList == []:
                 self.level += 1
                 self.player.startConditions()
                 self.board = PacManBoard.Board()
                 self.dotCount = 0
                 self.setSpeeds()
+                for i in range(609):
+                    #Draw all of the constants except the ghosts.
+                    PacManGraphics.drawboard(self.display, self.background)
+                    PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
+                    PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
+                    PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())
+                    self.clock.tick(60)
+                    pygame.display.update()
+        while True:
+            #Get the events that have occurred, and check to see if the user wants to quit.
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit(0)
+            self.drawObjects()
+            PacManGraphics.gameOver(self.display, self.font)
+            pygame.display.update()
+
 
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
@@ -73,7 +90,7 @@ class PacManEngine:
 
         #Check if each move in the required direction is valid, and if it is then make it.
         for direction in directions:
-            if self.checkPlayerMove(direction):
+            if self.checkMove(direction, self.player):
                 self.player.move(direction)
                 self.player.tile = self.board.findTile(self.player.x, self.player.y)
 
@@ -82,16 +99,16 @@ class PacManEngine:
             print("""x %s
             y %s""" %(self.player.x, self.player.y))
 
-    def checkPlayerMove(self, direction):
+    def checkMove(self, direction, entity):
         #Check that the move is valid using the board's checkValidPosition function.
         if direction == "right":
-            return self.board.checkValidPosition(self.player.x + self.player.speed, self.player.y)
+            return self.board.checkValidPosition(entity.x + entity.speed, entity.y)
         elif direction == "left":
-            return self.board.checkValidPosition(self.player.x - self.player.speed, self.player.y)
+            return self.board.checkValidPosition(entity.x - entity.speed, entity.y)
         elif direction == "up":
-            return self.board.checkValidPosition(self.player.x, self.player.y - self.player.speed)
+            return self.board.checkValidPosition(entity.x, entity.y - entity.speed)
         else:
-            return self.board.checkValidPosition(self.player.x, self.player.y + self.player.speed)
+            return self.board.checkValidPosition(entity.x, entity.y + entity.speed)
 
     def gameloop(self):
         #Get the events that have occurred, and check to see if the user wants to quit.
@@ -122,24 +139,27 @@ class PacManEngine:
         #Draw the constant objects.
         self.drawObjects()
 
-        #Draw fruit along the bottom of the board according to the current level.
-        PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.level)
-
         #Check if there is currently fruit on the board.
         if self.fruit:
             #If the player is on the fruit tile, remove it and add to the score.
             if self.player.tile == (17,14) or self.player.tile == (17, 13):
                 self.fruit = False
-                self.score += FRUITSCORES[((self.level - 1) % 8)]
+                self.score += FRUITSCORES[self.fruitIndex()]
             #Otherwise, if more time has elapsed than the limit set at creation, remove the fruit.
             elif (time.time() - self.fruitTime) > self.fruitLimit:
                 self.fruit = False
             #Draw the fruit if nothing has happened to it.
             else:
-                PacManGraphics.drawFruit(self.display, self.gameSprites, self.level)
+                PacManGraphics.drawFruit(self.display, self.gameSprites, self.fruitIndex())
 
         #Update the display so the changes are shown.
         pygame.display.update()
+
+        #Check if the player still has lives to continue with, and if so return True.
+        if self.player.lives < 0 and self.player.deathCount == 12:
+            return False
+        else:
+            return True
 
     def takePlayerTurn(self):
         if not self.player.checkEating():
@@ -166,7 +186,6 @@ class PacManEngine:
     def takeGhostTurn(self):
         """Testing"""
         for ghost in self.ghosts:
-            print(ghost.ghostNo)
             if ghost.checkEaten(self.player):
                 if ghost.mode == 2:
                     ghost.startDeath()
@@ -181,19 +200,26 @@ class PacManEngine:
                     atJunction, freeTiles = self.board.checkJunction(ghost.tile)
                     if atJunction:
                         #Update the ghost's target in order to decide the direction.
-                        ghost.getTarget(self.player)
+                        ghost.getTarget(self.player, self.ghosts[0].tile)
                         #Choose the direction that gives the best outcome.
                         ghost.useJunction(freeTiles)
 
-            #Move the ghost in the set direction and animate it.
-            ghost.move()
-            if self.board.checkTunnel(ghost):
-                self.ghostTunnel()
-            else:
-                self.setSpeeds()
-            ghost.updateSprite()
-            #Update the ghost's tile.
-            ghost.tile = self.board.findTile(ghost.x, ghost.y)
+            if ghost.ghostHouse == True:
+                ghost.leaveHouse()
+
+            elif ghost.direction == [-1, 0] and self.checkMove("left", ghost) \
+            or ghost.direction == [1, 0] and self.checkMove("right", ghost) \
+            or ghost.direction == [0, -1] and self.checkMove("up", ghost) \
+            or ghost.direction == [0, 1] and self.checkMove("down", ghost):
+                #Move the ghost in the set direction and animate it.
+                ghost.move()
+                if self.board.checkTunnel(ghost):
+                    self.ghostTunnel()
+                else:
+                    self.setSpeeds()
+                ghost.updateSprite()
+                #Update the ghost's tile.
+                ghost.tile = self.board.findTile(ghost.x, ghost.y)
 
     def setSpeeds(self):
         #Assign object speeds based on the current level.
@@ -205,28 +231,29 @@ class PacManEngine:
             elif self.level <= 4:
                 self.player.setSpeed(0.9)
                 for ghost in self.ghosts:
-                    self.ghost.setSpeed(0.85)
+                    ghost.setSpeed(0.85)
             elif self.level <= 20:
                 self.player.setSpeed(1)
                 for ghost in self.ghosts:
-                    self.ghost.setSpeed(0.95)
+                    ghost.setSpeed(0.95)
             else:
                 self.player.setSpeed(0.9)
                 for ghost in self.ghosts:
-                    self.ghost.setSpeed(0.95)
+                    ghost.setSpeed(0.95)
+            self.ghosts[0].elroySpeed(self.dotCount, self.level)
         else:
             if self.level == 1:
                 self.player.setSpeed(0.9)
                 for ghost in self.ghosts:
-                    self.ghost.setSpeed(0.5)
+                    ghost.setSpeed(0.5)
             elif self.level <= 4:
                 self.player.setSpeed(0.95)
                 for ghost in self.ghosts:
-                    self.ghost.setSpeed(0.55)
+                    ghost.setSpeed(0.55)
             elif self.level <= 20:
                 self.player.setSpeed(1)
                 for ghost in self.ghosts:
-                    self.ghost.setSpeed(0.6)
+                    ghost.setSpeed(0.6)
 
     def ghostTunnel(self):
         if self.level == 1:
@@ -241,6 +268,14 @@ class PacManEngine:
         else:
             for ghost in self.ghosts:
                 ghost.setSpeed(0.5)
+
+    def fruitIndex(self):
+        if self.level < 2:
+            return self.level - 1
+        elif self.level < 13:
+            return math.ceil(self.level / 2)
+        else:
+            return 7
 
     def drawObjects(self):
         #Calls the required draw functions for objects that always exist.
@@ -260,3 +295,6 @@ class PacManEngine:
         #Draw the ghosts.
         for ghost in self.ghosts:
             PacManGraphics.drawSprite(self.display, ghost.x - 7, ghost.y - 7, self.gameSprites, ghost.spriteLoc)
+
+        #Draw fruit along the bottom of the board according to the current level.
+        PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())

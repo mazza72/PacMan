@@ -21,9 +21,10 @@ PELLET = (8,184,8,8)
 BLACK  = (0,0,0)
 DOTCOLOUR = (250,185,176)
 WHITE = (255,255,255)
+RED = (255,0,0)
 
 #Window height and width for the pygame display, using the size of the background image and a space for an outline.
-WINDOWWIDTH= IMAGEWIDTH + 2 * OUTLINESPACING
+WINDOWWIDTH = IMAGEWIDTH + 2 * OUTLINESPACING
 WINDOWHEIGHT = IMAGEHEIGHT + 2 * OUTLINESPACING
 
 def setupDisplay():
@@ -81,10 +82,9 @@ def drawInfo(display, score, lives, spriteSheet, font):
     #Change the starting position of the score label according to the number of digits it has, so it remains in place.
     display.blit(label2, (78 - 8 * len(str(score)), 12))
 
-def drawFruitsRow(display, spriteSheet, level):
+def drawFruitsRow(display, spriteSheet, fruitIndex):
     #Draw a row of fruit along the bottom of the board according to the level.
-    for fruit in range(level):
-        fruit %= 8
+    for fruit in range(fruitIndex + 1):
         sprite = spriteSheet.image_at(FRUITS[fruit])
         #Decrease the x coordinate by 16 pixel intervals for each fruit.
         display.blit(sprite, (250 - fruit * 16,294))
@@ -95,8 +95,11 @@ def drawPellets(display, spriteSheet, pelletList):
         if pellet[1]:
             display.blit(sprite, (49 + 8 * pellet[0][1], 45 + 8 * pellet[0][0]))
 
-def drawFruit(display, spritesSheet, level):
+def drawFruit(display, spritesSheet, fruitIndex):
     #Draw the fruit associated with the current level at a constant position.
-    level = (level - 1) % 8
-    sprite = spritesSheet.image_at(FRUITS[level])
+    sprite = spritesSheet.image_at(FRUITS[fruitIndex])
     display.blit(sprite, (154, 178))
+
+def gameOver(display, font):
+    overLabel = font.render("GAME   OVER", 1, RED)
+    display.blit(overLabel, (116,177))
