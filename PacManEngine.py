@@ -29,7 +29,7 @@ class PacManEngine:
         self.ghosts = [PacManGhosts.Blinky(), PacManGhosts.Pinky(), PacManGhosts.Inky(), PacManGhosts.Clyde()]
 
         #Call the graphics function that creates the window and font.
-        self.display, self.font, self.background, self.gameSprites = PacManGraphics.setupDisplay()
+        self.display, self.font, self.backgrounds, self.gameSprites = PacManGraphics.setupDisplay()
 
         #Creates a clock object to manage the framerate of the game.
         self.clock = pygame.time.Clock()
@@ -44,21 +44,24 @@ class PacManEngine:
 
     def playLevels(self):
         self.setSpeeds()
+        self.getReady()
         while self.gameloop():
             if self.dotCount == 240 and self.board.pelletList == []:
-                self.level += 1
-                self.player.startConditions()
-                self.board = PacManBoard.Board()
-                self.dotCount = 0
-                self.setSpeeds()
-                for i in range(609):
+                for i in range(100):
                     #Draw all of the constants except the ghosts.
-                    PacManGraphics.drawboard(self.display, self.background)
+                    PacManGraphics.drawboard(self.display, self.backgrounds[(i // 7) % 2])
                     PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
                     PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
                     PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())
                     self.clock.tick(60)
                     pygame.display.update()
+
+                self.level += 1
+                self.board = PacManBoard.Board()
+                self.dotCount = 0
+                self.setSpeeds()
+                self.getReady()
+
         while True:
             #Get the events that have occurred, and check to see if the user wants to quit.
             for event in pygame.event.get():
@@ -117,10 +120,11 @@ class PacManEngine:
                 pygame.quit()
                 sys.exit(0)
 
-        """Check if a ghost has died"""
+        """Check if a ghost has died and call getReady function"""
         if self.player.checkDying():
-            self.player.deathSequence()
-
+            #If the death sequence is just completing, return the ghosts and player to start conditions.
+            if self.player.deathSequence():
+                self.getReady()
         else:
             self.takePlayerTurn()
             self.takeGhostTurn()
@@ -281,7 +285,7 @@ class PacManEngine:
         #Calls the required draw functions for objects that always exist.
 
         #Draw the board.
-        PacManGraphics.drawboard(self.display, self.background)
+        PacManGraphics.drawboard(self.display, self.backgrounds[0])
         #Add labels to the edge of the board - lives, score etc.
         PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
 
@@ -298,3 +302,14 @@ class PacManEngine:
 
         #Draw fruit along the bottom of the board according to the current level.
         PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())
+
+    def getReady(self):
+        self.player.startConditions()
+        for ghost in self.ghosts:
+            ghost.startConditions()
+
+        for i in range(150):
+            self.drawObjects()
+            PacManGraphics.newLevel(self.display, self.font)
+            pygame.display.update()
+            self.clock.tick(60)

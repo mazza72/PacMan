@@ -89,10 +89,10 @@ class Player():
                 self.spriteLoc = DEATHSPRITES[self.deathCount]
                 #Add to the counter to keep track of the position in the list.
                 self.deathCount += 1
+            return False
         #If the death animation has been completed:
         else:
-            #Return the player to starting conditions.
-            self.startConditions()
+            return True
 
     def startConditions(self):
         #Returns the player to its starting point.

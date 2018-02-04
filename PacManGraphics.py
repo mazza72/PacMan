@@ -7,7 +7,8 @@ import spritesheet
 import pygame
 
 #Set constant values for the program.
-BACKGROUNDFILE = "Background.png"
+BACKGROUNDFILE1 = "Background.png"
+BACKGROUNDFILE2 = "BackgroundWhite.png"
 IMAGEHEIGHT = 249
 IMAGEWIDTH = 231
 FONTSIZE = 20
@@ -31,14 +32,15 @@ def setupDisplay():
     #Create a window of the speicified height and width.
     display = pygame.display.set_mode((WINDOWWIDTH, WINDOWHEIGHT))
     pygame.display.set_caption('Pac-Man demonstration')
-    background = pygame.image.load(BACKGROUNDFILE).convert()
+    background1 = pygame.image.load(BACKGROUNDFILE1).convert()
+    background2 = pygame.image.load(BACKGROUNDFILE2).convert()
 
     #Create the spritesheet using the spritesheet class.
     gameSprites = spritesheet.spritesheet("GeneralSprites.png")
 
     #Create a new font object of the default pygame font, and with the specified font size.
     gamefont = pygame.font.Font(None, FONTSIZE)
-    return (display, gamefont, background, gameSprites)
+    return (display, gamefont, (background1, background2), gameSprites)
 
 def drawboard(display, backgroundimage):
     display.fill(BLACK)
@@ -103,3 +105,7 @@ def drawFruit(display, spritesSheet, fruitIndex):
 def gameOver(display, font):
     overLabel = font.render("GAME   OVER", 1, RED)
     display.blit(overLabel, (116,177))
+
+def newLevel(display, font):
+    readyLabel = font.render("READY", 1, RED)
+    display.blit(readyLabel, (137,177))

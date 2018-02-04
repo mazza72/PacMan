@@ -1,10 +1,3 @@
-# xs at 123, 153, 139
-#ys at 138 and 114
-
-#Blinky's first sprite at 457, 65 - all 14,14
-#16 pixels between 2 starts of sprites.
-#order of sprites is blinky, pinky, inky, clyde
-
 #possibly create a scatterCount frightenedTime and frightenedTarget attribute when implementing modes.
 
 #Constants for the locations of the ghost sprites in the spritesheet.
@@ -86,8 +79,22 @@ class Ghost():
         #Store a counter for the delay when cornering.
         self.cornerCount = 3
         self.speed = 0
-        """Testing"""
         self.ghostHouse = False
+
+    def startConditions(self):
+        #Return the ghost to default conditions.
+        self.mode = 0
+        self.spriteLoc = BLINKYRIGHT1
+        self.x = 161
+        self.y = 136
+        self.tile = (11,13)
+        self.oldTile = (11,13)
+        self.ghostHouse = False
+        self.direction = [-1, 0]
+        self.directionChange = False
+        self.updateCount = 0
+        self.cornerCount = 3
+        self.speed = 0
 
     def getTarget(self, player, blinkyPos):
         """Currently returns blinky's target, following the player."""
@@ -244,9 +251,7 @@ class Pinky(Ghost):
         self.ghostNo = 1
         #Store Pinky's hard-coded start location.
         self.x = 161
-        self.y = 144
-        self.tile = (12,13)
-        self.oldTile = (12,13)
+        self.y = 160
         self.ghostHouse = True
 
     def getTarget(self, player, blinkyPos):
@@ -264,6 +269,13 @@ class Pinky(Ghost):
         else:
             super(Pinky, self).getTarget(player, blinkyPos)
 
+    def startConditions(self):
+        super(Pinky, self).startConditions()
+        self.spriteLoc = PINKYRIGHT1
+        self.x = 161
+        self.y = 160
+        self.ghostHouse = True
+
 class Inky(Ghost):
     def __init__(self):
         super(Inky, self).__init__()
@@ -272,10 +284,8 @@ class Inky(Ghost):
         #Stores the number of the ghost to be used for generating sprites etc.
         self.ghostNo = 2
         #Store Inky's hard-coded start location.
-        self.x = 169
-        self.y = 144
-        self.tile = (12,14)
-        self.oldTile = (12,14)
+        self.x = 177
+        self.y = 160
         #Values for if the ghost is in the ghost house and how long they have been there.
         self.ghostHouse = True
         self.houseCounter = 0
@@ -296,6 +306,13 @@ class Inky(Ghost):
         else:
             super(Inky, self).getTarget(player, blinkyPos)
 
+    def startConditions(self):
+        super(Inky, self).startConditions()
+        self.spriteLoc = INKYRIGHT1
+        self.x = 177
+        self.y = 160
+        self.ghostHouse = True
+
 class Clyde(Ghost):
     def __init__(self):
         super(Clyde, self).__init__()
@@ -304,10 +321,8 @@ class Clyde(Ghost):
         #Stores the number of the ghost to be used for generating sprites etc.
         self.ghostNo = 3
         #Store Clyde's hard-coded start location.
-        self.x = 153
-        self.y = 144
-        self.tile = (12,13)
-        self.oldTile = (12,13)
+        self.x = 145
+        self.y = 160
         self.ghostHouse = True
 
     def getTarget(self, player, blinkyPos):
@@ -318,3 +333,10 @@ class Clyde(Ghost):
                 self.targetPos = player.tile
         else:
             super(Clyde, self).getTarget(player, blinkyPos)
+
+    def startConditions(self):
+        super(Clyde, self).startConditions()
+        self.spriteLoc = CLYDERIGHT1
+        self.x = 145
+        self.y = 160
+        self.ghostHouse = True
