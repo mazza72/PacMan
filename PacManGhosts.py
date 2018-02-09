@@ -102,6 +102,13 @@ class Ghost():
             self.targetPos = player.tile
         elif self.mode == 1:
             self.targetPos = SCATTERTILES[self.ghostNo]
+        elif self.mode == 2:
+            """Add running away from the player here"""
+        else:
+            if self.tile[0] == 11 and self.tile[1] > 11 and self.tile[1] < 15:
+                self.ghostHouse = True
+            else:
+                self.targetPos = (11,13)
 
     def checkEaten(self, player):
         #Check for a collision with the player.
@@ -120,7 +127,7 @@ class Ghost():
         #Update the ghost's mode to the one it is switching to.
         self.mode = mode
         #Reverse the direction of the ghost unless it is leaving frightened mode.
-        if self.lastmode != 2:
+        if self.lastmode != 2 and self.lastmode != 3:
             self.direction = list(map((lambda x: -1 * x), self.direction))
             self.directionChange = True
 
@@ -217,16 +224,25 @@ class Ghost():
     def setSpeed(self, proportion):
         self.speed = 1.46 * proportion
 
-
-    def leaveHouse(self):
-        if self.x < 161:
-            self.x += 1
-        elif self.x > 161:
-            self.x -= 1
-        elif self.y > 136:
-            self.y -= 1
+    def houseAction(self):
+        if self.mode == 0:
+            if self.x < 161:
+                self.x += 1
+            elif self.x > 161:
+                self.x -= 1
+            elif self.y > 136:
+                self.y -= 1
+            else:
+                self.ghostHouse = False
         else:
-            self.ghostHouse = False
+            if self.x < 161:
+                self.x += 1
+            elif self.x > 161:
+                self.x -= 1
+            elif self.y < 160:
+                self.y += 1
+            else:
+                self.updateMode(0)
 
 class Blinky(Ghost):
     def elroySpeed(self, dotCount, level):

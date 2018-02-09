@@ -38,7 +38,7 @@ class PacManEngine:
         self.score = 0
         self.dotCount = 0
 
-        """Testing"""
+        #Create variables for whether there is active fruit and what the current level is.
         self.fruit = False
         self.level = 1
 
@@ -189,6 +189,7 @@ class PacManEngine:
 
     def takeGhostTurn(self):
         """Testing"""
+        self.setSpeeds()
         for ghost in self.ghosts:
             if ghost.checkEaten(self.player):
                 if ghost.mode == 2:
@@ -209,7 +210,7 @@ class PacManEngine:
                         ghost.useJunction(freeTiles)
 
             if ghost.ghostHouse == True:
-                ghost.leaveHouse()
+                ghost.houseAction()
 
             elif ghost.direction == [-1, 0] and self.checkMove("left", ghost) \
             or ghost.direction == [1, 0] and self.checkMove("right", ghost) \
@@ -217,13 +218,9 @@ class PacManEngine:
             or ghost.direction == [0, 1] and self.checkMove("down", ghost):
                 #Move the ghost in the set direction and animate it.
                 ghost.move()
-                if self.board.checkTunnel(ghost):
-                    self.ghostTunnel()
-                else:
-                    self.setSpeeds()
-                ghost.updateSprite()
                 #Update the ghost's tile.
                 ghost.tile = self.board.findTile(ghost.x, ghost.y)
+            ghost.updateSprite()
 
     def setSpeeds(self):
         #Assign object speeds based on the current level.
@@ -244,7 +241,12 @@ class PacManEngine:
                 self.player.setSpeed(0.9)
                 for ghost in self.ghosts:
                     ghost.setSpeed(0.95)
+            for ghost in self.ghosts:
+                if self.board.checkTunnel(ghost):
+                    self.ghostTunnel(ghost)
             self.ghosts[0].elroySpeed(self.dotCount, self.level)
+            print(self.ghosts[0].tile)
+            print(self.ghosts[0].x)
         else:
             if self.level == 1:
                 self.player.setSpeed(0.9)
@@ -258,20 +260,17 @@ class PacManEngine:
                 self.player.setSpeed(1)
                 for ghost in self.ghosts:
                     ghost.setSpeed(0.6)
+            self.board.checkTunnel(ghost)
 
-    def ghostTunnel(self):
+    def ghostTunnel(self, ghost):
         if self.level == 1:
-            for ghost in self.ghosts:
-                ghost.setSpeed(0.4)
+            ghost.setSpeed(0.4)
         elif self.level <= 4:
-            for ghost in self.ghosts:
-                ghost.setSpeed(0.45)
+            ghost.setSpeed(0.45)
         elif self.level <= 20:
-            for ghost in self.ghosts:
-                ghost.setSpeed(0.5)
+            ghost.setSpeed(0.5)
         else:
-            for ghost in self.ghosts:
-                ghost.setSpeed(0.5)
+            ghost.setSpeed(0.5)
 
     def fruitIndex(self):
         if self.level < 2:
