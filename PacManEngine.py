@@ -72,7 +72,6 @@ class PacManEngine:
             PacManGraphics.gameOver(self.display, self.font)
             pygame.display.update()
 
-
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
         directions = []
@@ -186,7 +185,6 @@ class PacManEngine:
                     ghost.updateMode(2)
                 self.player.pauseToEat(1)
 
-
     def takeGhostTurn(self):
         """Testing"""
         self.setSpeeds()
@@ -245,8 +243,6 @@ class PacManEngine:
                 if self.board.checkTunnel(ghost):
                     self.ghostTunnel(ghost)
             self.ghosts[0].elroySpeed(self.dotCount, self.level)
-            print(self.ghosts[0].tile)
-            print(self.ghosts[0].x)
         else:
             if self.level == 1:
                 self.player.setSpeed(0.9)
@@ -260,7 +256,8 @@ class PacManEngine:
                 self.player.setSpeed(1)
                 for ghost in self.ghosts:
                     ghost.setSpeed(0.6)
-            self.board.checkTunnel(ghost)
+            for ghost in self.ghosts:
+                self.board.checkTunnel(ghost)
 
     def ghostTunnel(self, ghost):
         if self.level == 1:

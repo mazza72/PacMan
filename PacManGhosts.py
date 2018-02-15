@@ -1,5 +1,7 @@
 #possibly create a scatterCount frightenedTime and frightenedTarget attribute when implementing modes.
 
+import MergeSort
+
 #Constants for the locations of the ghost sprites in the spritesheet.
 BLINKYRIGHT1 = (457, 65, 14, 14)
 BLINKYRIGHT2 = (473, 65, 14, 14)
@@ -56,6 +58,10 @@ ELROYPROP = [0.85,0.95,0.95,0.95,1.05]
 #List containing the scatter tiles for each of the ghosts.
 SCATTERTILES = [(-2, 29), (-2,3), (30,29), (30,1)]
 
+#Lists containing the time the ghosts remain frightened for and the number of flashes during the transition back.
+FRIGHTENEDTIME = [6,5,4,3,2,5,2,2,1,5,2,1,1,3,1,1,0,1,0]
+TRANSITIONFRAMES = [5,5,5,5,5,5,5,5,3,5,5,3,3,5,3,3,0,3,0]
+
 class Ghost():
     def __init__(self):
         #Set the mode of the ghost to chase mode. 1 is scatter and 2 is frightened modes. 3 is used when the ghost has been eaten.
@@ -98,12 +104,10 @@ class Ghost():
 
     def getTarget(self, player, blinkyPos):
         """Currently returns blinky's target, following the player."""
-        if self.mode == 0:
+        if self.mode == 0 or self.mode == 2:
             self.targetPos = player.tile
         elif self.mode == 1:
             self.targetPos = SCATTERTILES[self.ghostNo]
-        elif self.mode == 2:
-            """Add running away from the player here"""
         else:
             if self.tile[0] == 11 and self.tile[1] > 11 and self.tile[1] < 15:
                 self.ghostHouse = True
@@ -143,9 +147,18 @@ class Ghost():
             if tile != None:
                 distances.append(self.calculateDistance(tile, self.targetPos))
             else:
-                distances.append(100000)
-        #Return the index of the minimum value in the list.
-        index = distances.index(min(distances))
+                if self.mode == 2:
+                    distances.append(0)
+                else:
+                    distances.append(100000)
+        orderedDistances = MergeSort.mergeSort(distances)
+        if self.mode == 2:
+            maxDistance = orderedDistances[len(orderedDistances) - 1]
+            index = distances.index(maxDistance)
+        else:
+            #Return the index of the minimum value in the list.
+            minDistance = orderedDistances[0]
+            index = distances.index(minDistance)
         if index == 0:
             self.direction = [0, -1]
         elif index == 1:
