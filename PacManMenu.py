@@ -1,1 +1,71 @@
 """Creates the interface for the user to use."""
+#import the required files.
+import PacManEngine
+
+#Import the required modules for the program to run.
+import sys
+
+#Import the required parts of the PyQt module for the menu.
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QPixmap
+
+class MainMenu(QWidget):
+
+    def __init__(self):
+        #Initialise the Q Widget itself.
+        super().__init__()
+        #Load the main menu screen.
+        self.baseMenu()
+
+    def baseMenu(self):
+        #Set the layout of the menu with 10 pixels between widgets.
+        grid = QGridLayout()
+        grid.setSpacing(10)
+        self.setLayout(grid)
+
+        #Create a label with a centred picture for the title.
+        titleLabel = QLabel(self)
+        logoPic = QPixmap('PacManLogo.png')
+        titleLabel.setPixmap(logoPic)
+        titleLabel.setAlignment(Qt.AlignCenter)
+        grid.addWidget(titleLabel, 0, 0, 2, 10)
+
+        #Create 3 buttons with connected functions to allow the user to select the option they want to use.
+        playerBtn = QPushButton("1 Player", self)
+        playerBtn.clicked.connect(self.onePlayer)
+        grid.addWidget(playerBtn, 3, 3, 2, 4)
+        AIBtn = QPushButton("AI", self)
+        grid.addWidget(AIBtn, 6, 3, 2, 4)
+        HiScoresBtn = QPushButton("High Scores", self)
+        grid.addWidget(HiScoresBtn, 9, 3, 2, 4)
+
+        #Use a style sheet in order to set the aesthetics of the menu, including attributes such as text size and border colour.
+        self.setStyleSheet("QPushButton { border-style: outset;"
+                        "border-width: 2px;"
+                        "border-radius: 10px;"
+                        "border-color: blue;"
+                        "font: bold 30px;"
+                        "color: blue;"
+                        "min-width: 10em;"
+                        "padding: 6px; "
+                        "height: 50px}"
+                        "QWidget {background-color: black; }")
+
+        #Make it so the menu is created at coordinates (300,300) with a length of 1000 and width of 1200.
+        self.setGeometry(300, 300, 1000, 1200)
+        self.setWindowTitle('Pac-Man Demonstration')
+        #Display the widgets on the screen.
+        self.show()
+
+    def onePlayer(self):
+        #Initialise PacMan within the PacMan Engine file.
+        game = PacManEngine.PacManEngine()
+        game.playLevels()
+
+def runMenu():
+    #Create an application object for pyQt5.
+    app = QApplication(sys.argv)
+    menu = MainMenu()
+    #This ends the application if the user closes the window.
+    sys.exit(app.exec_())
