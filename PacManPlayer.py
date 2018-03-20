@@ -37,6 +37,7 @@ class Player():
         self.eatDelay = 0
         self.delayCount = 0
 
+
     def move(self, direction):
         #Updates the position of the player based on the direction it is moving.
         if direction == "right":
@@ -59,6 +60,7 @@ class Player():
             self.updateSprite(3)
             self.direction = 3
 
+
     def updateSprite(self, direction):
         """Update so it uses the stored direction?"""
         #Animates the player sprite.
@@ -68,6 +70,7 @@ class Player():
                 self.spriteLoc = CLOSEDSPRITES[direction]
             else:
                 self.spriteLoc = OPENSPRITES[direction]
+
 
     def checkAnimation(self):
         #Checks if 5 ticks have passed since the last sprite change.
@@ -79,6 +82,7 @@ class Player():
             return True
         else:
             return False
+
 
     def deathSequence(self):
         #Handles the animation and effects of the player's death.
@@ -94,6 +98,7 @@ class Player():
         else:
             return True
 
+
     def startConditions(self):
         #Returns the player to its starting point.
         self.y = 232
@@ -102,6 +107,7 @@ class Player():
         self.spriteLoc = START
         self.updateCount = 0
         self.deathCount = 0
+
 
     def startDeath(self):
         #Begins the death animation and resets the animation counter.
@@ -112,6 +118,7 @@ class Player():
         #Removes a life from the player.
         self.lives -= 1
 
+
     def checkDying(self):
         #Return whether the player is currently carrying out the death animation.
         if self.deathCount > 0:
@@ -119,14 +126,17 @@ class Player():
         else:
             return False
 
+
     def setSpeed(self, reduction):
         self.speed = 1.46 * reduction
+
 
     def pauseToEat(self, dotType):
         if dotType == 0:
             self.eatDelay = 1
         else:
             self.eatDelay = 3
+
 
     def checkEating(self):
         if self.delayCount < self.eatDelay:

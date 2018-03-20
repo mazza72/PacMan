@@ -42,9 +42,13 @@ class PacManEngine:
         self.fruit = False
         self.level = 1
 
-    def playLevels(self):
+
+    def playLevels(self, user = True):
         self.setSpeeds()
         self.getReady()
+        self.user = user
+
+        #While the player is able to continue playing.
         while self.gameloop():
             if self.dotCount == 240 and self.board.pelletList == []:
                 for i in range(100):
@@ -65,30 +69,35 @@ class PacManEngine:
         while True:
             #Get the events that have occurred, and check to see if the user wants to quit.
             for event in pygame.event.get():
-                if event.type == pygame.QUIT:
+                keysPressed = pygame.key.get_pressed()
+                if event.type == pygame.QUIT or keysPressed[pygame.K_ESCAPE]:
                     pygame.quit()
-                    sys.exit(0)
+                    return self.score
+
             self.drawObjects()
             PacManGraphics.gameOver(self.display, self.font)
             pygame.display.update()
+
 
     def getPlayerInput(self):
         #Create an empty list of attempted moves.
         directions = []
 
-        #Get a dictionary with each key and a boolean value of whether it has been pressed this tick.
-        keysPressed = pygame.key.get_pressed()
+        #Check if the user is playing, and if so get the input from the arrow keys.
+        if self.user:
+            #Get a dictionary with each key and a boolean value of whether it has been pressed this tick.
+            keysPressed = pygame.key.get_pressed()
 
-        #If one of the arrow keys has been pressed, update a direction variable to the associated direction.
-        #Allows for movement in more than one direction, as long as these directions are not opposing, to avoid bugs.
-        if keysPressed[pygame.K_RIGHT]:
-            directions.append("right")
-        elif keysPressed[pygame.K_LEFT]:
-            directions.append("left")
-        if keysPressed[pygame.K_UP]:
-            directions.append("up")
-        elif keysPressed[pygame.K_DOWN]:
-            directions.append("down")
+            #If one of the arrow keys has been pressed, update a direction variable to the associated direction.
+            #Allows for movement in more than one direction, as long as these directions are not opposing, to avoid bugs.
+            if keysPressed[pygame.K_RIGHT]:
+                directions.append("right")
+            elif keysPressed[pygame.K_LEFT]:
+                directions.append("left")
+            if keysPressed[pygame.K_UP]:
+                directions.append("up")
+            elif keysPressed[pygame.K_DOWN]:
+                directions.append("down")
 
         #Check if each move in the required direction is valid, and if it is then make it.
         for direction in directions:
@@ -96,10 +105,11 @@ class PacManEngine:
                 self.player.move(direction)
                 self.player.tile = self.board.findTile(self.player.x, self.player.y)
 
-        #Code for testing player coordinates. Remove later.
+        """Code for testing player coordinates. Remove later."""
         if keysPressed[pygame.K_RETURN]:
             print("""x %s
             y %s""" %(self.player.x, self.player.y))
+
 
     def checkMove(self, direction, entity):
         #Check that the move is valid using the board's checkValidPosition function.
@@ -112,6 +122,7 @@ class PacManEngine:
         else:
             return self.board.checkValidPosition(entity.x, entity.y + entity.speed)
 
+
     def gameloop(self):
         #Get the events that have occurred, and check to see if the user wants to quit.
         for event in pygame.event.get():
@@ -119,7 +130,7 @@ class PacManEngine:
                 pygame.quit()
                 sys.exit(0)
 
-        """Check if a ghost has died and call getReady function"""
+        #Check if a ghost has died and call getReady function
         if self.player.checkDying():
             #If the death sequence is just completing, return the ghosts and player to start conditions.
             if self.player.deathSequence():
@@ -164,6 +175,7 @@ class PacManEngine:
         else:
             return True
 
+
     def takePlayerTurn(self):
         if not self.player.checkEating():
             """Will need to be checked to see if the user is playing"""
@@ -185,9 +197,10 @@ class PacManEngine:
                     ghost.updateMode(2)
                 self.player.pauseToEat(1)
 
+
     def takeGhostTurn(self):
-        """Testing"""
         self.setSpeeds()
+
         for ghost in self.ghosts:
             if ghost.checkEaten(self.player):
                 if ghost.mode == 2:
@@ -219,6 +232,8 @@ class PacManEngine:
                 #Update the ghost's tile.
                 ghost.tile = self.board.findTile(ghost.x, ghost.y)
             ghost.updateSprite()
+            ghost.checkModeChange(self.level)
+
 
     def setSpeeds(self):
         #Assign object speeds based on the current level.
@@ -239,10 +254,12 @@ class PacManEngine:
                 self.player.setSpeed(0.9)
                 for ghost in self.ghosts:
                     ghost.setSpeed(0.95)
+
             for ghost in self.ghosts:
                 if self.board.checkTunnel(ghost):
                     self.ghostTunnel(ghost)
             self.ghosts[0].elroySpeed(self.dotCount, self.level)
+
         else:
             if self.level == 1:
                 self.player.setSpeed(0.9)
@@ -256,8 +273,10 @@ class PacManEngine:
                 self.player.setSpeed(1)
                 for ghost in self.ghosts:
                     ghost.setSpeed(0.6)
+
             for ghost in self.ghosts:
                 self.board.checkTunnel(ghost)
+
 
     def ghostTunnel(self, ghost):
         if self.level == 1:
@@ -269,6 +288,7 @@ class PacManEngine:
         else:
             ghost.setSpeed(0.5)
 
+
     def fruitIndex(self):
         if self.level < 2:
             return self.level - 1
@@ -276,6 +296,7 @@ class PacManEngine:
             return math.ceil(self.level / 2)
         else:
             return 7
+
 
     def drawObjects(self):
         #Calls the required draw functions for objects that always exist.
@@ -299,8 +320,10 @@ class PacManEngine:
         #Draw fruit along the bottom of the board according to the current level.
         PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())
 
+
     def getReady(self):
         self.player.startConditions()
+
         for ghost in self.ghosts:
             ghost.startConditions()
 

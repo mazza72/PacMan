@@ -72,17 +72,21 @@ class Board():
         self.tiles = copy.deepcopy(BOARDTEMPLATE)
         self.pelletList = [((3,26), True), ((3,1), True), ((23,26), True), ((23,1), True)]
 
+
     def findTile(self, objx, objy):
         #Check if the object's centre lies in a specific row.
         for j in range(len(self.tiles)):
             rowy = j * 8 + 45
+
             if objy > rowy and objy <= rowy + 8:
                 #Check which column the object's centre lies in.
                 for i in range(len(self.tiles[j])):
                     colx = i * 8 + 48
+
                     if objx > colx and objx <= colx + 8:
                         #Return the row and column of the objects current tile.
                         return (j,i)
+
 
     def checkValidPosition(self, objx, objy):
         #Check that the 2x2 centre of the sprite doesn't lie over a tile that cannot be moved to.
@@ -90,11 +94,13 @@ class Board():
         tile = self.tiles[j][i]
         j, i = self.findTile(objx - 1, objy + 1)
         tile2 = self.tiles[j][i]
+
         #Return whether that tile can be moved to.
         if tile[0] and tile2[0]:
             return True
         else:
             return False
+
 
     def checkTunnel(self, objToCheck):
         #Check if the ghost or player is within the tunnel.
@@ -110,6 +116,7 @@ class Board():
                 return True
         return False
 
+
     def eatDot(self, playerTile):
         #Use the playerTile tuple to access the relevent tile, and look at it's value for whether there is a PacDot there.
         if self.tiles[playerTile[0]][playerTile[1]][1]:
@@ -119,6 +126,7 @@ class Board():
         else:
             return False
 
+
     def eatPellet(self, playerTile):
         for pellet in range(len(self.pelletList)):
             if playerTile == self.pelletList[pellet][0]:
@@ -126,15 +134,18 @@ class Board():
                 return True
         return False
 
+
     def checkTileCentre(self, objx, objy):
         #Calculate the distance of the object from the 4x4 centre of a tile.
         tilePosx = (objx - 50) % 8
         tilePosy = (objy - 47) % 8
+
         #Check if the object is within the centre.
         if tilePosx < 5 and tilePosy < 5:
             return True
         else:
             return False
+
 
     def checkJunction(self, tile):
         #Check if there is a junction based on whether there is at least one tile free both horizontally and vertically.

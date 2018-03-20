@@ -15,30 +15,29 @@ class MainMenu(QWidget):
     def __init__(self):
         #Initialise the Q Widget itself.
         super().__init__()
-        #Load the main menu screen.
-        self.baseMenu()
 
-    def baseMenu(self):
+        #Load the main menu screen.
         #Set the layout of the menu with 10 pixels between widgets.
-        grid = QGridLayout()
-        grid.setSpacing(10)
-        self.setLayout(grid)
+        self.grid = QGridLayout()
+        self.grid.setSpacing(10)
+        self.setLayout(self.grid)
 
         #Create a label with a centred picture for the title.
-        titleLabel = QLabel(self)
-        logoPic = QPixmap('PacManLogo.png')
-        titleLabel.setPixmap(logoPic)
-        titleLabel.setAlignment(Qt.AlignCenter)
-        grid.addWidget(titleLabel, 0, 0, 2, 10)
+        self.titleLabel = QLabel(self)
+        self.logoPic = QPixmap('PacManLogo.png')
+        self.titleLabel.setPixmap(self.logoPic)
+        self.titleLabel.setAlignment(Qt.AlignCenter)
+        self.grid.addWidget(self.titleLabel, 0, 0, 2, 10)
 
         #Create 3 buttons with connected functions to allow the user to select the option they want to use.
-        playerBtn = QPushButton("1 Player", self)
-        playerBtn.clicked.connect(self.onePlayer)
-        grid.addWidget(playerBtn, 3, 3, 2, 4)
-        AIBtn = QPushButton("AI", self)
-        grid.addWidget(AIBtn, 6, 3, 2, 4)
-        HiScoresBtn = QPushButton("High Scores", self)
-        grid.addWidget(HiScoresBtn, 9, 3, 2, 4)
+        self.playerBtn = QPushButton("1 Player", self)
+        self.playerBtn.clicked.connect(self.onePlayer)
+        self.grid.addWidget(self.playerBtn, 3, 3, 2, 4)
+        self.AIBtn = QPushButton("AI", self)
+        self.grid.addWidget(self.AIBtn, 6, 3, 2, 4)
+        self.HiScoresBtn = QPushButton("High Scores", self)
+        self.grid.addWidget(self.HiScoresBtn, 9, 3, 2, 4)
+        self.playerBtn.clicked.connect(self.displayScores)
 
         #Use a style sheet in order to set the aesthetics of the menu, including attributes such as text size and border colour.
         self.setStyleSheet("QPushButton { border-style: outset;"
@@ -46,6 +45,20 @@ class MainMenu(QWidget):
                         "border-radius: 10px;"
                         "border-color: blue;"
                         "font: bold 30px;"
+                        "color: blue;"
+                        "min-width: 10em;"
+                        "padding: 6px; "
+                        "height: 50px}"
+                        "QLineEdit { border-style: outset;"
+                        "border-width: 2px;"
+                        "border-radius: 10px;"
+                        "border-color: blue;"
+                        "font: bold 30px;"
+                        "color: blue;"
+                        "min-width: 10em;"
+                        "padding: 6px; "
+                        "height: 50px}"
+                        "QLabel { font: bold 35px;"
                         "color: blue;"
                         "min-width: 10em;"
                         "padding: 6px; "
@@ -61,7 +74,18 @@ class MainMenu(QWidget):
     def onePlayer(self):
         #Initialise PacMan within the PacMan Engine file.
         game = PacManEngine.PacManEngine()
-        game.playLevels()
+        score = game.playLevels()
+        name, ok = QInputDialog.getText(self, 'ScoreForm',
+            'Enter your name to store your score:')
+
+        if ok:
+            with open("playerHighscores.txt", 'a') as f:
+                f.write(name + ',' + str(score) + "\n")
+
+    def displayScores(self):
+        pass
+        """Load second window? or dialog to display scores"""
+
 
 def runMenu():
     #Create an application object for pyQt5.

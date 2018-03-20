@@ -1,6 +1,7 @@
 #possibly create a scatterCount frightenedTime and frightenedTarget attribute when implementing modes.
 
 import MergeSort
+import random
 
 #Constants for the locations of the ghost sprites in the spritesheet.
 BLINKYRIGHT1 = (457, 65, 14, 14)
@@ -86,6 +87,9 @@ class Ghost():
         self.cornerCount = 3
         self.speed = 0
         self.ghostHouse = False
+        self.modeCounter = 0
+        self.transitionCount = 0
+
 
     def startConditions(self):
         #Return the ghost to default conditions.
@@ -102,8 +106,8 @@ class Ghost():
         self.cornerCount = 3
         self.speed = 0
 
+
     def getTarget(self, player, blinkyPos):
-        """Currently returns blinky's target, following the player."""
         if self.mode == 0 or self.mode == 2:
             self.targetPos = player.tile
         elif self.mode == 1:
@@ -114,6 +118,7 @@ class Ghost():
             else:
                 self.targetPos = (11,13)
 
+
     def checkEaten(self, player):
         #Check for a collision with the player.
         if player.tile == self.tile:
@@ -121,44 +126,52 @@ class Ghost():
         else:
             return False
 
+
     def startDeath(self):
         self.mode = 3
         """Add transition to death sprite???"""
+
 
     def updateMode(self, mode):
         #Store the current mode in case the ghost needs to return to it.
         self.lastmode = self.mode
         #Update the ghost's mode to the one it is switching to.
         self.mode = mode
+
         #Reverse the direction of the ghost unless it is leaving frightened mode.
         if self.lastmode != 2 and self.lastmode != 3:
             self.direction = list(map((lambda x: -1 * x), self.direction))
             self.directionChange = True
+        self.modeCounter = 0
+
 
     def useJunction(self, freeTiles):
         valueTest = list(map(lambda x: abs(x), self.direction))
+
         if valueTest != self.direction:
             entryTile = 2 + abs(self.direction[0])
         else:
             entryTile = self.direction[0]
         freeTiles[entryTile] = None
-        distances = []
-        for tile in freeTiles:
-            if tile != None:
-                distances.append(self.calculateDistance(tile, self.targetPos))
-            else:
-                if self.mode == 2:
-                    distances.append(0)
+
+        if self.mode == 2:
+            index = random.randint(0,3)
+            if not freeTiles[index]:
+                index = 0
+                while not freeTiles[index]:
+                    index += 1
+        else:
+            distances = []
+            for tile in freeTiles:
+                if tile != None:
+                    distances.append(self.calculateDistance(tile, self.targetPos))
                 else:
                     distances.append(100000)
-        orderedDistances = MergeSort.mergeSort(distances)
-        if self.mode == 2:
-            maxDistance = orderedDistances[len(orderedDistances) - 1]
-            index = distances.index(maxDistance)
-        else:
+            orderedDistances = MergeSort.mergeSort(distances)
             #Return the index of the minimum value in the list.
             minDistance = orderedDistances[0]
             index = distances.index(minDistance)
+
         if index == 0:
             self.direction = [0, -1]
         elif index == 1:
@@ -167,42 +180,74 @@ class Ghost():
             self.direction = [0, 1]
         elif index == 3:
             self.direction = [1, 0]
+
         self.cornerCount = 0
 
+
     def updateSprite(self):
+        """Add counter since last mode change"""
         #Animates the player sprite.
         if self.checkAnimation():
             #Check if the ghost is in chase mode, and therefore uses a default sprite.
             if self.mode == 0:
                 #Generate a location for the position of the sprite within the list.
                 spritePos = self.ghostNo * 4 + 2 * abs(self.direction[1])
+
                 #Test whether one of the values within the direction is negative, and if so, use the next location along in the list.
                 valueTest = list(map(lambda x: abs(x), self.direction))
                 if valueTest != self.direction:
                     spritePos += 1
+
                 #Checks what the existing sprite is, and loads the alternate one.
                 if self.spriteLoc in FOURLEG:
                     self.spriteLoc = THREELEG[spritePos]
                 else:
                     self.spriteLoc = FOURLEG[spritePos]
+
             elif self.mode == 2:
                 if self.spriteLoc == FRIGHTENED1:
                     self.spriteLoc = FRIGHTENED2
+                elif self.spriteLoc == FRIGHTENED4:
+                    self.spriteLoc = FRIGHTENED3
+                elif self.spriteLoc == FRIGHTENED3:
+                    self.spriteLoc = FRIGHTENED4
                 else:
                     self.spriteLoc = FRIGHTENED1
+
             elif self.mode == 3:
                 #Generate a location for the position of the sprite within the list.
                 spritePos = 2 * abs(self.direction[1])
+
                 #Test whether one of the values within the direction is negative, and if so, use the next location along in the list.
                 valueTest = list(map(lambda x: abs(x), self.direction))
                 if valueTest != self.direction:
                     spritePos += 1
+
                 #Find the required sprites from the deathsprites list.
                 self.spriteLoc = DEATHSPRITES[spritePos]
+
+    def checkModeChange(self, level):
+        self.modeCounter += 1
+        if self.mode == 2:
+            if FRIGHTENEDTIME[level - 1] <= self.modeCounter / 60:
+                self.leaveFrightened(level)
+
+    def leaveFrightened(self, level):
+        self.transitionCount += 1
+        if (self.transitionCount / 10) % 1 == 0:
+            if self.spriteLoc == FRIGHTENED3 or self.spriteLoc == FRIGHTENED4:
+                self.spriteLoc = FRIGHTENED1
+            else:
+                self.spriteLoc = FRIGHTENED3
+
+        if self.transitionCount == TRANSITIONFRAMES[level] * 20:
+            self.updateMode(0)
+
 
     def checkAnimation(self):
         #Checks if 5 ticks have passed since the last sprite change.
         self.updateCount += 1
+
         #If 5 ticks have passed:
         if self.updateCount == 5:
             #Reset the counter and return true.
@@ -210,6 +255,7 @@ class Ghost():
             return True
         else:
             return False
+
 
     def move(self):
         #Check the ghost has finished turning a corner.
@@ -219,12 +265,14 @@ class Ghost():
         else:
             self.cornerCount += 1
 
+
     def calculateDistance(self, tile1, tile2):
         #Calculate the distance between two board tiles using pythagoras.
         xdist = abs(tile1[0] - tile2[0])
         ydist = abs(tile1[1] - tile2[1])
         distance = (xdist ** 2 + ydist ** 2) ** 0.5
         return distance
+
 
     def leftTile(self):
         if self.tile != self.oldTile or self.directionChange:
@@ -234,8 +282,10 @@ class Ghost():
         else:
             return False
 
+
     def setSpeed(self, proportion):
         self.speed = 1.46 * proportion
+
 
     def houseAction(self):
         if self.mode == 0:
@@ -257,6 +307,7 @@ class Ghost():
             else:
                 self.updateMode(0)
 
+
 class Blinky(Ghost):
     def elroySpeed(self, dotCount, level):
         if level >= 19:
@@ -264,12 +315,14 @@ class Blinky(Ghost):
                 self.setSpeed(1)
             elif dotCount >= 180:
                 self.setSpeed(1.05)
+            """Why bother checking if you're going to reset???"""
             self.setSpeed(1.05)
         else:
             if dotCount > 240 - 2 * ELROYDOTS[level - 1]:
                 self.setSpeed(ELROYPROP[level - 1] - 0.05)
             elif dotCount > 240 - ELROYDOTS[level - 1]:
                 self.setSpeed(ELROYPROP[level - 1])
+
 
 class Pinky(Ghost):
     def __init__(self):
@@ -282,6 +335,7 @@ class Pinky(Ghost):
         self.x = 161
         self.y = 160
         self.ghostHouse = True
+
 
     def getTarget(self, player, blinkyPos):
         #If in chase mode, calculate the tile two ahead of where the player is looking.
@@ -298,12 +352,14 @@ class Pinky(Ghost):
         else:
             super(Pinky, self).getTarget(player, blinkyPos)
 
+
     def startConditions(self):
         super(Pinky, self).startConditions()
         self.spriteLoc = PINKYRIGHT1
         self.x = 161
         self.y = 160
         self.ghostHouse = True
+
 
 class Inky(Ghost):
     def __init__(self):
@@ -319,6 +375,7 @@ class Inky(Ghost):
         self.ghostHouse = True
         self.houseCounter = 0
 
+
     def getTarget(self, player, blinkyPos):
         if self.mode == 0:
             if player.direction == 0:
@@ -329,11 +386,13 @@ class Inky(Ghost):
                 pinkyTarget = (player.tile[0] - 1, player.tile[1])
             else:
                 pinkyTarget = (player.tile[0] + 1, player.tile[1])
+
             targetx = pinkyTarget[1] + 2 * (pinkyTarget[1] - blinkyPos[1])
             targety = pinkyTarget[0] + 2 * (pinkyTarget[0] - blinkyPos[0])
             self.targetPos = (targety, targetx)
         else:
             super(Inky, self).getTarget(player, blinkyPos)
+
 
     def startConditions(self):
         super(Inky, self).startConditions()
@@ -341,6 +400,7 @@ class Inky(Ghost):
         self.x = 177
         self.y = 160
         self.ghostHouse = True
+
 
 class Clyde(Ghost):
     def __init__(self):
@@ -354,6 +414,7 @@ class Clyde(Ghost):
         self.y = 160
         self.ghostHouse = True
 
+
     def getTarget(self, player, blinkyPos):
         if self.mode == 0:
             if self.calculateDistance(player.tile, self.tile) <= 8:
@@ -362,6 +423,7 @@ class Clyde(Ghost):
                 self.targetPos = player.tile
         else:
             super(Clyde, self).getTarget(player, blinkyPos)
+
 
     def startConditions(self):
         super(Clyde, self).startConditions()
