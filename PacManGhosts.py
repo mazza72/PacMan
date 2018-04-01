@@ -226,21 +226,27 @@ class Ghost():
                 #Find the required sprites from the deathsprites list.
                 self.spriteLoc = DEATHSPRITES[spritePos]
 
+
     def checkModeChange(self, level):
         self.modeCounter += 1
         if self.mode == 2:
             if FRIGHTENEDTIME[level - 1] <= self.modeCounter / 60:
                 self.leaveFrightened(level)
+        else:
+            self.transitionCount = 0
+
 
     def leaveFrightened(self, level):
         self.transitionCount += 1
+        print("Leaving", self.ghostNo, self.transitionCount)
         if (self.transitionCount / 10) % 1 == 0:
             if self.spriteLoc == FRIGHTENED3 or self.spriteLoc == FRIGHTENED4:
                 self.spriteLoc = FRIGHTENED1
             else:
                 self.spriteLoc = FRIGHTENED3
 
-        if self.transitionCount == TRANSITIONFRAMES[level] * 20:
+        """Added inequality, broke transition animation"""
+        if self.transitionCount >= TRANSITIONFRAMES[level] * 20:
             self.updateMode(0)
 
 

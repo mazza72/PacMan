@@ -5,6 +5,7 @@ import PacManBoard
 import PacManGraphics
 import PacManPlayer
 import PacManGhosts
+import PacManAI
 
 #import required modules
 import sys, pygame, random, time, math
@@ -73,13 +74,17 @@ class PacManEngine:
                 if event.type == pygame.QUIT or keysPressed[pygame.K_ESCAPE]:
                     pygame.quit()
                     return self.score
+                elif keysPressed[pygame.K_r]:
+                    self.resetGame()
+                    self.playLevels(user)
+                    return self.score
 
             self.drawObjects()
             PacManGraphics.gameOver(self.display, self.font)
             pygame.display.update()
 
 
-    def getPlayerInput(self):
+    def movePlayer(self):
         #Create an empty list of attempted moves.
         directions = []
 
@@ -98,6 +103,10 @@ class PacManEngine:
                 directions.append("up")
             elif keysPressed[pygame.K_DOWN]:
                 directions.append("down")
+
+        else:
+            pass
+            """Get the move from the AI agent"""
 
         #Check if each move in the required direction is valid, and if it is then make it.
         for direction in directions:
@@ -179,8 +188,8 @@ class PacManEngine:
     def takePlayerTurn(self):
         if not self.player.checkEating():
             """Will need to be checked to see if the user is playing"""
-            #Check to see if the player wants to move.
-            self.getPlayerInput()
+            #Move the player in the desired direction.
+            self.movePlayer()
 
             #Check to see if the player has moved through a tunnel.
             self.board.checkTunnel(self.player)
@@ -323,6 +332,7 @@ class PacManEngine:
 
     def getReady(self):
         self.player.startConditions()
+        self.fruit = False
 
         for ghost in self.ghosts:
             ghost.startConditions()
@@ -332,3 +342,10 @@ class PacManEngine:
             PacManGraphics.newLevel(self.display, self.font)
             pygame.display.update()
             self.clock.tick(60)
+
+    def resetGame(self):
+        self.score = 0
+        self.dotCount = 0
+        self.level = 1
+        self.board = PacManBoard.Board()
+        self.player = PacManPlayer.Player()
