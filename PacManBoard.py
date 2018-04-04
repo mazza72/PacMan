@@ -157,7 +157,6 @@ class Board():
             #Check if a tile left or right can be moved to.
             if self.tiles[tile[0]][tile[1] - 1][0] or self.tiles[tile[0]][tile[1] + 1][0]:
                 #Update the values in the array according to whether each tile can be moved to.
-                #Upwards checks for some hard coded values the ghosts cannot turn into.
                 if self.tiles[tile[0] - 1][tile[1]][0] and tile[0] != 11 and not (tile[0] == 23 and 11 < tile[1] < 17):
                     availableTiles[0] = (tile[0] - 1, tile[1])
                 if self.tiles[tile[0]][tile[1] - 1][0]:
@@ -169,3 +168,6 @@ class Board():
                 return (True, availableTiles)
 
         return (False, availableTiles)
+
+    def checkTile(self, tile):
+        return self.tiles[tile[0]][tile[1]][0]

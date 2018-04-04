@@ -22,11 +22,9 @@ class PacManEngine:
         pygame.init()
         pygame.font.init()
 
-        #Create the player object and board object.
+        #Create the player, board and ghost objects from their respective files.
         self.player = PacManPlayer.Player()
-
         self.board = PacManBoard.Board()
-
         self.ghosts = [PacManGhosts.Blinky(), PacManGhosts.Pinky(), PacManGhosts.Inky(), PacManGhosts.Clyde()]
 
         #Call the graphics function that creates the window and font.
@@ -38,6 +36,7 @@ class PacManEngine:
         #Create an empty score and a counter for the number of dots eaten.
         self.score = 0
         self.dotCount = 0
+        self.eatenGhosts = 0
 
         #Create variables for whether there is active fruit and what the current level is.
         self.fruit = False
@@ -45,9 +44,14 @@ class PacManEngine:
 
 
     def playLevels(self, user = True):
+        #Load the starting screen and set default settings for the first level.
         self.setSpeeds()
         self.getReady()
         self.user = user
+
+        #Load the AI if there is no one playing.
+        if not user:
+            self.ai = PacManAI.Agent()
 
         #While the player is able to continue playing.
         while self.gameloop():
@@ -58,15 +62,18 @@ class PacManEngine:
                     PacManGraphics.drawInfo(self.display, self.score, self.player.lives, self.gameSprites, self.font)
                     PacManGraphics.drawSprite(self.display, self.player.x - 7, self.player.y - 6, self.gameSprites, self.player.spriteLoc)
                     PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())
+                    #Limit the framerate to 60 frames per second.
                     self.clock.tick(60)
                     pygame.display.update()
 
+                #Once one level finishes, update settings and reset the board.
                 self.level += 1
                 self.board = PacManBoard.Board()
                 self.dotCount = 0
                 self.setSpeeds()
                 self.getReady()
 
+        #Once the game is finished.
         while True:
             #Get the events that have occurred, and check to see if the user wants to quit.
             for event in pygame.event.get():
@@ -74,22 +81,24 @@ class PacManEngine:
                 if event.type == pygame.QUIT or keysPressed[pygame.K_ESCAPE]:
                     pygame.quit()
                     return self.score
+                #If the player presses 'r', reset the game without exiting the window.
                 elif keysPressed[pygame.K_r]:
                     self.resetGame()
                     self.playLevels(user)
                     return self.score
 
+            #Keep drawing all of the required objects, as well as the game over font.
             self.drawObjects()
             PacManGraphics.gameOver(self.display, self.font)
             pygame.display.update()
 
 
     def movePlayer(self):
-        #Create an empty list of attempted moves.
-        directions = []
-
         #Check if the user is playing, and if so get the input from the arrow keys.
         if self.user:
+            #Create an empty list of attempted moves.
+            directions = []
+
             #Get a dictionary with each key and a boolean value of whether it has been pressed this tick.
             keysPressed = pygame.key.get_pressed()
 
@@ -104,21 +113,21 @@ class PacManEngine:
             elif keysPressed[pygame.K_DOWN]:
                 directions.append("down")
 
+            #Check if each move in the required direction is valid, and if it is then make it.
+            for direction in directions:
+                if self.checkMove(direction, self.player):
+                    self.player.move(direction)
+                    self.player.tile = self.board.findTile(self.player.x, self.player.y)
+
+        #If the game is not being controlled manually.
         else:
-            pass
-            """Get the move from the AI agent"""
-
-        #Check if each move in the required direction is valid, and if it is then make it.
-        for direction in directions:
-            if self.checkMove(direction, self.player):
-                self.player.move(direction)
-                self.player.tile = self.board.findTile(self.player.x, self.player.y)
-
-        """Code for testing player coordinates. Remove later."""
-        if keysPressed[pygame.K_RETURN]:
-            print("""x %s
-            y %s""" %(self.player.x, self.player.y))
-
+            #Store the current score for the AI to use for learning.
+            self.ai.recordScore(self.score)
+            #Get the desired move from the AI given the current state information and available moves.
+            direction = self.ai.generateMove(self.generateState(), self.findAvailableMoves())
+            #Move the player in the given direction and update the player information accordingly.
+            self.player.move(direction)
+            self.player.tile = self.board.findTile(self.player.x, self.player.y)
 
     def checkMove(self, direction, entity):
         #Check that the move is valid using the board's checkValidPosition function.
@@ -178,6 +187,10 @@ class PacManEngine:
         #Update the display so the changes are shown.
         pygame.display.update()
 
+        #Use the expected reward vs achieved reward to update the AI weights if it is playing.
+        if not self.user:
+            self.ai.updateWeights(self.score, self.generateState(), self.findAvailableMoves())
+
         #Check if the player still has lives to continue with, and if so return True.
         if self.player.lives < 0 and self.player.deathCount == 12:
             return False
@@ -187,7 +200,6 @@ class PacManEngine:
 
     def takePlayerTurn(self):
         if not self.player.checkEating():
-            """Will need to be checked to see if the user is playing"""
             #Move the player in the desired direction.
             self.movePlayer()
 
@@ -200,21 +212,30 @@ class PacManEngine:
                 self.dotCount += 1
                 self.player.pauseToEat(0)
 
+            #Does the same for Power Pellets and puts the ghosts into frightened mode if so.
             elif self.board.eatPellet(self.player.tile):
                 self.score += PELLETSCORE
                 for ghost in self.ghosts:
+                    self.eatenGhosts = 0
                     ghost.updateMode(2)
                 self.player.pauseToEat(1)
 
 
     def takeGhostTurn(self):
+        #Ensure the ghosts are travelling at the correct speed for their current mode and level.
         self.setSpeeds()
 
         for ghost in self.ghosts:
+            #Check for a collision between the ghost and player.
             if ghost.checkEaten(self.player):
+                #Either start the ghost's death or the player's death depending on the ghost mode.
                 if ghost.mode == 2:
+                    self.score += GHOSTSCORE * (2 ** self.eatenGhosts)
                     ghost.startDeath()
                 elif ghost.mode != 3:
+                    #Increase the AI's expected value in order to create a negative difference in reward.
+                    if not self.user:
+                        self.ai.expectedVal += 50
                     self.player.startDeath()
 
             #Check if the ghost is centred on a tile.
@@ -229,9 +250,11 @@ class PacManEngine:
                         #Choose the direction that gives the best outcome.
                         ghost.useJunction(freeTiles)
 
+            #Check if the ghost is in the ghost house, and if so make it follow the set course of action.
             if ghost.ghostHouse == True:
                 ghost.houseAction()
 
+            #Otherwise move the ghost in the direction based on its target location.
             elif ghost.direction == [-1, 0] and self.checkMove("left", ghost) \
             or ghost.direction == [1, 0] and self.checkMove("right", ghost) \
             or ghost.direction == [0, -1] and self.checkMove("up", ghost) \
@@ -240,6 +263,8 @@ class PacManEngine:
                 ghost.move()
                 #Update the ghost's tile.
                 ghost.tile = self.board.findTile(ghost.x, ghost.y)
+
+            #Animate the ghost's movement and check if it needs to change level.
             ghost.updateSprite()
             ghost.checkModeChange(self.level)
 
@@ -286,7 +311,7 @@ class PacManEngine:
             for ghost in self.ghosts:
                 self.board.checkTunnel(ghost)
 
-
+    #Return the correct speed percentage for a ghost in the tunnel.
     def ghostTunnel(self, ghost):
         if self.level == 1:
             ghost.setSpeed(0.4)
@@ -298,6 +323,7 @@ class PacManEngine:
             ghost.setSpeed(0.5)
 
 
+    #Return the index of the current level's fruit in the constant list.
     def fruitIndex(self):
         if self.level < 2:
             return self.level - 1
@@ -330,22 +356,57 @@ class PacManEngine:
         PacManGraphics.drawFruitsRow(self.display, self.gameSprites, self.fruitIndex())
 
 
+    #Reset the conditions of the level.
     def getReady(self):
         self.player.startConditions()
+        #Remove the bonus fruit.
         self.fruit = False
 
         for ghost in self.ghosts:
             ghost.startConditions()
 
+        #Pause the game with the 'get ready' text.
         for i in range(150):
             self.drawObjects()
             PacManGraphics.newLevel(self.display, self.font)
             pygame.display.update()
             self.clock.tick(60)
 
+    #Reset the whole game back to the first level. Create a new player and board.
     def resetGame(self):
         self.score = 0
         self.dotCount = 0
         self.level = 1
         self.board = PacManBoard.Board()
         self.player = PacManPlayer.Player()
+
+
+    #Wrapper function to create the list of information for the AI to use.
+    def generateState(self):
+        chasingGhosts = []
+        frightenedGhosts = []
+
+        #Add the ghost's distance to different lists depending on the mode, since this affects the behaviour towards it.
+        for ghost in self.ghosts:
+            if ghost.mode == 0:
+                chasingGhosts.append(ghost.tile)
+            elif ghost.mode == 1:
+                chasingGhosts.append(None)
+                frightenedGhosts.append(ghost.tile)
+
+        state = [self.player.tile, chasingGhosts, frightenedGhosts, self.board.tiles, self.board.pelletList, self.fruit]
+        return state
+
+
+    #Check the tiles around the player for ones that can be moved to, to be considered by the AI.
+    def findAvailableMoves(self):
+        availableMoves = []
+        if self.board.checkTile((self.player.tile[0] - 1, self.player.tile[1])):
+            availableMoves.append("up")
+        if self.board.checkTile((self.player.tile[0] + 1, self.player.tile[1])):
+            availableMoves.append("down")
+        if self.board.checkTile((self.player.tile[0], self.player.tile[1] - 1)):
+            availableMoves.append("left")
+        if self.board.checkTile((self.player.tile[0], self.player.tile[1] + 1)):
+            availableMoves.append("right")
+        return availableMoves

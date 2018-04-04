@@ -2,7 +2,7 @@
 import PacManEngine
 
 game = PacManEngine.PacManEngine()
-game.playLevels()
+game.playLevels(False)
 """
 import PacManMenu
 PacManMenu.runMenu()

@@ -1,3 +1,5 @@
+"""External code."""
+
 import pygame
 
 class spritesheet(object):

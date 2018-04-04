@@ -40,36 +40,38 @@ class Player():
 
     def move(self, direction):
         #Updates the position of the player based on the direction it is moving.
+        print("player move direction:", direction)
         if direction == "right":
             self.x += self.speed
-            self.updateSprite(0)
             self.direction = 0
+            self.updateSprite()
+
 
         elif direction == "left":
             self.x -= self.speed
-            self.updateSprite(1)
             self.direction = 1
+            self.updateSprite()
+
 
         elif direction == "up":
             self.y -= self.speed
-            self.updateSprite(2)
             self.direction = 2
+            self.updateSprite()
 
         else:
             self.y += self.speed
-            self.updateSprite(3)
             self.direction = 3
+            self.updateSprite()
 
 
-    def updateSprite(self, direction):
-        """Update so it uses the stored direction?"""
+    def updateSprite(self):
         #Animates the player sprite.
         if self.checkAnimation():
             #Checks what the existing sprite is, and loads the alternate one.
             if self.spriteLoc in OPENSPRITES:
-                self.spriteLoc = CLOSEDSPRITES[direction]
+                self.spriteLoc = CLOSEDSPRITES[self.direction]
             else:
-                self.spriteLoc = OPENSPRITES[direction]
+                self.spriteLoc = OPENSPRITES[self.direction]
 
 
     def checkAnimation(self):

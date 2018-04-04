@@ -34,6 +34,7 @@ class MainMenu(QWidget):
         self.playerBtn.clicked.connect(self.onePlayer)
         self.grid.addWidget(self.playerBtn, 3, 3, 2, 4)
         self.AIBtn = QPushButton("AI", self)
+        self.AIBtn.clicked.connect(self.AIPlayer)
         self.grid.addWidget(self.AIBtn, 6, 3, 2, 4)
         self.HiScoresBtn = QPushButton("High Scores", self)
         self.grid.addWidget(self.HiScoresBtn, 9, 3, 2, 4)
@@ -75,49 +76,96 @@ class MainMenu(QWidget):
 
     def onePlayer(self):
         #Initialise PacMan within the PacMan Engine file.
-        """Testing"""
-        difficultySelector = QInputDialog(self)
-        something, easy = difficultySelector.getText(self, 'Difficulty selection', 'Select desired difficulty')
         game = PacManEngine.PacManEngine()
         score = game.playLevels()
-        """Add a dialog with an easy/hard selection to launch the engine with more lives"""
         name, ok = QInputDialog.getText(self, 'ScoreForm',
             'Enter your name to store your score:')
 
+        #See if the player wants to save their score.
         if ok:
-            with open("playerHighscores.txt", 'a') as f:
-                """Run binary search to insert the score?"""
-                f.write(name + ',' + str(score) + "\n")
+            currentScores = []
+            newScores = currentScores
+
+            #If the scores file exists open it
+            try:
+                with open("playerHighscores.txt", 'r') as f:
+
+                    #Split the saved lines into 2 element lists by splitting at the comma.
+                    for line in f:
+                        record = line.split(',')
+                        record[1] = int(record[1])
+                        currentScores.append(record)
+
+                    #Loop through the loaded scores and see if the player has done better.
+                    newScores = currentScores
+                    for i in range(len(currentScores)):
+
+                        if score > int(currentScores[i][1]):
+
+                            #If the player has done better insert their score into the appropriate place in the list.
+                            if i > 0:
+                                newScores = currentScores[::i]
+                            else:
+                                newScores = []
+
+                            newScores.append([name, score])
+                            #Loop through the remaining stored scores, leaving out the last one.
+                            for j in range(len(currentScores) - i - 1):
+                                newScores.append(currentScores[i+j])
+                            #Stop comparing the new score, since we know it will be bigger than the rest from this point.
+                            break
+
+            #If the scores file does not exist create a set of placeholder scores to store.
+            except FileNotFoundError:
+                print("Creating new scores file")
+                newScores = [[name, score]]
+                for i in range(4):
+                    newScores.append(("PlaceHolder", 0))
+
+            #Check if the scores have changed or a new file needs to be created.
+            if newScores != currentScores or currentScores == []:
+                with open("playerHighscores.txt", 'w') as f:
+                    #Write out scores to the file, with each score on a new line.
+                    for line in newScores:
+                        f.write(str(line[0]) + ', ' + str(line[1]) + '\n')
 
     def AIPlayer(self):
+        #Launch the PacMan engine without a player.
         game = PacManEngine.PacManEngine()
         game.playLevels(False)
 
     def displayScores(self):
-        self.AIBtn.hide()
+        #Displays the second screen after updating the scores.
+        self.scoresScreen.getScores()
         self.scoresScreen.show()
-        """Load second window? or dialog to display scores"""
 
 class ScoreDisplay(QWidget):
     def __init__(self):
         #Initialise the Q Widget itself.
         super().__init__()
+        self.getScores()
 
         #Set the layout of the menu with 10 pixels between widgets.
         self.grid = QGridLayout()
         self.grid.setSpacing(10)
         self.setLayout(self.grid)
 
-        self.inputTest = QLineEdit(self)
-        self.grid.addWidget(self.inputTest, 0, 0, 2, 10)
-        self.inputTest.textChanged[str].connect(self.textChange)
+        #Create the button to hide the second screen again.
+        self.playerBtn = QPushButton("Back", self)
+        self.grid.addWidget(self.playerBtn, 12, 3, 2, 4)
+        self.playerBtn.clicked.connect(self.hideWindow)
 
-        self.playerBtn = QPushButton("1 Player", self)
-        self.grid.addWidget(self.playerBtn, 3, 3, 2, 4)
-        self.AIBtn = QPushButton("AI", self)
-        self.grid.addWidget(self.AIBtn, 6, 3, 2, 4)
-        self.HiScoresBtn = QPushButton("High Scores", self)
-        self.grid.addWidget(self.HiScoresBtn, 9, 3, 2, 4)
+        #Create 5 labels from the saved list of scores and add them to the screen.
+        self.scoreLabel1 = QLabel(self.currentScores[0], self)
+        self.grid.addWidget(self.scoreLabel1, 0, 3, 2, 4)
+        self.scoreLabel2 = QLabel(self.currentScores[1], self)
+        self.grid.addWidget(self.scoreLabel2, 2, 3, 2, 4)
+        self.scoreLabel3 = QLabel(self.currentScores[2], self)
+        self.grid.addWidget(self.scoreLabel3, 4, 3, 2, 4)
+        self.scoreLabel4 = QLabel(self.currentScores[3], self)
+        self.grid.addWidget(self.scoreLabel4, 6, 3, 2, 4)
+        self.scoreLabel5 = QLabel(self.currentScores[4], self)
+        self.grid.addWidget(self.scoreLabel5, 8, 3, 2, 4)
 
         #Use a style sheet in order to set the aesthetics of the menu, including attributes such as text size and border colour.
         self.setStyleSheet("QPushButton { border-style: outset;"
@@ -134,23 +182,27 @@ class ScoreDisplay(QWidget):
                         "min-width: 10em;"
                         "padding: 6px; "
                         "height: 50px}"
-                        "QLineEdit { border-style: outset;"
-                        "border-width: 2px;"
-                        "border-radius: 10px;"
-                        "border-color: blue;"
-                        "font: bold 30px;"
-                        "color: blue;"
-                        "min-width: 10em;"
-                        "padding: 6px; "
-                        "height: 50px}"
                         "QWidget {background-color: black; }")
 
         #Make it so the menu is created at coordinates (300,300) with a length of 1000 and width of 1200.
         self.setGeometry(500, 500, 500, 600)
         self.setWindowTitle('Second window')
 
-    def textChange(self):
-        print("Text changed", self.inputTest.text())
+    def hideWindow(self):
+        self.hide()
+
+    def getScores(self):
+        #If the file exists, open it and retrieve the scores.
+        try:
+            self.currentScores = []
+            with open("playerHighscores.txt", 'r') as f:
+                for line in f:
+                    self.currentScores.append(line)
+                    
+        #If the file doesn't exist load empty strings to show.
+        except FileNotFoundError:
+            self.currentScores = ['','','','','']
+
 
 def runMenu():
     #Create an application object for pyQt5.

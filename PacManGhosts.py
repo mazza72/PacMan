@@ -48,7 +48,6 @@ FRIGHTENED4 = (633, 65, 14, 14)
 
 DEATHSPRITES = [(585, 81, 14, 14),(601, 81, 14, 14),(633, 81, 14, 14),(617, 81, 14, 14)]
 
-"""Possibly split into separate lists that are stored within the object itself?"""
 FOURLEG = [BLINKYRIGHT1, BLINKYLEFT1, BLINKYDOWN1, BLINKYUP1, PINKYRIGHT1, PINKYLEFT1, PINKYDOWN1, PINKYUP1, INKYRIGHT1, INKYLEFT1, INKYDOWN1, INKYUP1, CLYDERIGHT1, CLYDELEFT1, CLYDEDOWN1, CLYDEUP1]
 THREELEG = [BLINKYRIGHT2, BLINKYLEFT2, BLINKYDOWN2, BLINKYUP2, PINKYRIGHT2, PINKYLEFT2, PINKYDOWN2, PINKYUP2, INKYRIGHT2, INKYLEFT2, INKYDOWN2, INKYUP2, CLYDERIGHT2, CLYDELEFT2, CLYDEDOWN2, CLYDEUP2]
 
@@ -108,10 +107,13 @@ class Ghost():
 
 
     def getTarget(self, player, blinkyPos):
+        #Target the player's current tile if in a chase mode.
         if self.mode == 0 or self.mode == 2:
             self.targetPos = player.tile
+        #Target the scatter tile if in scatter mode.
         elif self.mode == 1:
             self.targetPos = SCATTERTILES[self.ghostNo]
+        #If ghost is dead, check if currently in the ghost house, otherwise aim for it.
         else:
             if self.tile[0] == 11 and self.tile[1] > 11 and self.tile[1] < 15:
                 self.ghostHouse = True
@@ -129,8 +131,7 @@ class Ghost():
 
     def startDeath(self):
         self.mode = 3
-        """Add transition to death sprite???"""
-
+        """Add animation here"""
 
     def updateMode(self, mode):
         #Store the current mode in case the ghost needs to return to it.
@@ -146,20 +147,26 @@ class Ghost():
 
 
     def useJunction(self, freeTiles):
+        #Use the current direciton the player is travelling in to determine the point of entry.
         valueTest = list(map(lambda x: abs(x), self.direction))
 
         if valueTest != self.direction:
             entryTile = 2 + abs(self.direction[0])
         else:
             entryTile = self.direction[0]
+        #Stop the ghost leaving the way it came in.
         freeTiles[entryTile] = None
 
+        #If currently frightened, pick a random tile to leave by.
         if self.mode == 2:
             index = random.randint(0,3)
+            #If the random direction is not valid, iterate through them until one is found.
             if not freeTiles[index]:
                 index = 0
                 while not freeTiles[index]:
                     index += 1
+
+        #If not currently frightened, find the tile closest to the target position and use that direction.
         else:
             distances = []
             for tile in freeTiles:
@@ -172,6 +179,7 @@ class Ghost():
             minDistance = orderedDistances[0]
             index = distances.index(minDistance)
 
+        #Update the direction of the ghost based on the tile it is now aiming for.
         if index == 0:
             self.direction = [0, -1]
         elif index == 1:
@@ -181,11 +189,11 @@ class Ghost():
         elif index == 3:
             self.direction = [1, 0]
 
+        #Reset the delay counter for taking a corner.
         self.cornerCount = 0
 
 
     def updateSprite(self):
-        """Add counter since last mode change"""
         #Animates the player sprite.
         if self.checkAnimation():
             #Check if the ghost is in chase mode, and therefore uses a default sprite.
@@ -229,6 +237,7 @@ class Ghost():
 
     def checkModeChange(self, level):
         self.modeCounter += 1
+        #If in frightened mode, see if enough time has passed to leave it.
         if self.mode == 2:
             if FRIGHTENEDTIME[level - 1] <= self.modeCounter / 60:
                 self.leaveFrightened(level)
@@ -237,15 +246,15 @@ class Ghost():
 
 
     def leaveFrightened(self, level):
+        #Create the flashing blue/white animation to show the ghosts are leaving frightened mode.
         self.transitionCount += 1
-        print("Leaving", self.ghostNo, self.transitionCount)
         if (self.transitionCount / 10) % 1 == 0:
             if self.spriteLoc == FRIGHTENED3 or self.spriteLoc == FRIGHTENED4:
                 self.spriteLoc = FRIGHTENED1
             else:
                 self.spriteLoc = FRIGHTENED3
 
-        """Added inequality, broke transition animation"""
+        #Once enough time has passed, return the ghost to chase mode.
         if self.transitionCount >= TRANSITIONFRAMES[level] * 20:
             self.updateMode(0)
 
@@ -281,6 +290,7 @@ class Ghost():
 
 
     def leftTile(self):
+        #Check if the ghost has left the tile it was in yet.
         if self.tile != self.oldTile or self.directionChange:
             self.oldTile = self.tile
             self.directionChange = False
@@ -289,10 +299,12 @@ class Ghost():
             return False
 
 
+    #Set the speed attribute based on the percentage of the base speed the ghost should currently have.
     def setSpeed(self, proportion):
         self.speed = 1.46 * proportion
 
 
+    #Set animation for the ghost leaving the ghost house - move to centre then up and out.
     def houseAction(self):
         if self.mode == 0:
             if self.x < 161:
@@ -316,13 +328,14 @@ class Ghost():
 
 class Blinky(Ghost):
     def elroySpeed(self, dotCount, level):
+        #Sets the speed to blinky relative to how many dots have been eaten. Uses the constant lists defined previously.
         if level >= 19:
             if dotCount >= 120:
                 self.setSpeed(1)
             elif dotCount >= 180:
                 self.setSpeed(1.05)
-            """Why bother checking if you're going to reset???"""
-            self.setSpeed(1.05)
+            else:
+                self.setSpeed(1.05)
         else:
             if dotCount > 240 - 2 * ELROYDOTS[level - 1]:
                 self.setSpeed(ELROYPROP[level - 1] - 0.05)
@@ -383,6 +396,7 @@ class Inky(Ghost):
 
 
     def getTarget(self, player, blinkyPos):
+        #Returns the specific target for inky based on blinky and the player's positions.
         if self.mode == 0:
             if player.direction == 0:
                 pinkyTarget = (player.tile[0], player.tile[1] + 2)
@@ -396,6 +410,7 @@ class Inky(Ghost):
             targetx = pinkyTarget[1] + 2 * (pinkyTarget[1] - blinkyPos[1])
             targety = pinkyTarget[0] + 2 * (pinkyTarget[0] - blinkyPos[0])
             self.targetPos = (targety, targetx)
+        #Returns the generic targets if the ghost is in scatter, frightened or dead modes.
         else:
             super(Inky, self).getTarget(player, blinkyPos)
 
@@ -422,11 +437,14 @@ class Clyde(Ghost):
 
 
     def getTarget(self, player, blinkyPos):
+        #Returns the player's tile as a target if player is more than 8 tiles away.
         if self.mode == 0:
+            #Otherwise returns scatter target.
             if self.calculateDistance(player.tile, self.tile) <= 8:
                 self.targetPos = (30,1)
             else:
                 self.targetPos = player.tile
+        #Returns the generic targets if the ghost is in scatter, frightened or dead modes.
         else:
             super(Clyde, self).getTarget(player, blinkyPos)
 
