@@ -16,6 +16,9 @@ PELLETSCORE = 50
 GHOSTSCORE = 200
 FRUITSCORES = [100, 300, 500, 700, 1000, 2000, 3000, 5000]
 
+#Tiles over which bonus fruit is placed
+FRUITTILES = [(17,14),(17,13)]
+
 class PacManEngine:
     def __init__(self):
         #Setup pygame
@@ -174,7 +177,7 @@ class PacManEngine:
         #Check if there is currently fruit on the board.
         if self.fruit:
             #If the player is on the fruit tile, remove it and add to the score.
-            if self.player.tile == (17,14) or self.player.tile == (17, 13):
+            if self.player.tile in FRUITTILES:
                 self.fruit = False
                 self.score += FRUITSCORES[self.fruitIndex()]
             #Otherwise, if more time has elapsed than the limit set at creation, remove the fruit.
@@ -390,6 +393,7 @@ class PacManEngine:
         for ghost in self.ghosts:
             if ghost.mode == 0:
                 chasingGhosts.append(ghost.tile)
+                frightenedGhosts.append(None)
             elif ghost.mode == 1:
                 chasingGhosts.append(None)
                 frightenedGhosts.append(ghost.tile)

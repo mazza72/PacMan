@@ -1,0 +1,2 @@
+import PacManMenu
+PacManMenu.runMenu()
