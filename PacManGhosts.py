@@ -1,5 +1,3 @@
-#possibly create a scatterCount frightenedTime and frightenedTarget attribute when implementing modes.
-
 import MergeSort
 import random
 
@@ -337,10 +335,10 @@ class Blinky(Ghost):
             else:
                 self.setSpeed(1.05)
         else:
-            if dotCount > 240 - 2 * ELROYDOTS[level - 1]:
-                self.setSpeed(ELROYPROP[level - 1] - 0.05)
-            elif dotCount > 240 - ELROYDOTS[level - 1]:
+            if dotCount > 240 - ELROYDOTS[level - 1]:
                 self.setSpeed(ELROYPROP[level - 1])
+            elif dotCount > 240 - 2 * ELROYDOTS[level - 1]:
+                self.setSpeed(ELROYPROP[level - 1] - 0.05)
 
 
 class Pinky(Ghost):

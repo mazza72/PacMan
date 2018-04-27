@@ -40,7 +40,6 @@ class Player():
 
     def move(self, direction):
         #Updates the position of the player based on the direction it is moving.
-        print("player move direction:", direction)
         if direction == "right":
             self.x += self.speed
             self.direction = 0

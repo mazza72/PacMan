@@ -8,7 +8,7 @@ DIRECTIONS = ["up", "down", "left", "right"]
 class Agent():
     def __init__(self):
         self.weights = []
-
+        #Initialise the agent with all weights set to 1.
         for i in range(5):
             self.weights.append(1)
 
@@ -36,6 +36,8 @@ class Agent():
             #Keep the update if the Q-Value has not rounded to infinity or negative infinity, to avoid errors.
             if float('-Inf') < float(newQVal) < float('Inf'):
                 QVal = newQVal
+            else:
+                newQVal = QVal
 
         #Return the calculated value.
         return QVal
@@ -62,8 +64,8 @@ class Agent():
             for i in range(len(self.currentFeatures)):
                 self.weights[i] = self.weights[i] + self.alpha * self.currentFeatures[i] * difference
 
-        #Decrease the value of alpha to slow learning over time.
-        self.alpha *= 0.99
+            #Decrease the value of alpha to slow learning over time.
+            self.alpha *= 0.99
 
 
     def generateMove(self, state, possibleActions):
@@ -120,11 +122,11 @@ class Agent():
 
     def destinationTile(self, playerTile, direction):
         #Calculate the tile being moved to based on the direction.
-        if direction == "right":
+        if direction == "down":
             return (playerTile[0] + 1, playerTile[1])
-        elif direction == "left":
-            return (playerTile[0] - 1, playerTile[1])
         elif direction == "up":
+            return (playerTile[0] - 1, playerTile[1])
+        elif direction == "left":
             return (playerTile[0], playerTile[1] - 1)
         else:
             return (playerTile[0], playerTile[1] + 1)
@@ -191,7 +193,6 @@ class Agent():
 class CircularQueue():
     def __init__(self):
         #Create the queue as an empty array of size 30.
-        self.currentSize = 0
         self.maxSize = 30
         self.queue = []
 

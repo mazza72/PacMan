@@ -186,7 +186,8 @@ class ScoreDisplay(QWidget):
 
         #Make it so the menu is created at coordinates (300,300) with a length of 1000 and width of 1200.
         self.setGeometry(500, 500, 500, 600)
-        self.setWindowTitle('Second window')
+        self.setWindowTitle('Pac-Man Scores')
+
 
     def hideWindow(self):
         self.hide()
@@ -198,7 +199,12 @@ class ScoreDisplay(QWidget):
             with open("playerHighscores.txt", 'r') as f:
                 for line in f:
                     self.currentScores.append(line)
-                    
+
+                #If there are fewer than 5 scores add placeholder scores as required.
+                if len(self.currentScores) < 5:
+                    for i in range(5-len(self.currentScores)):
+                        self.currentScores.append("PlaceHolder, 0")
+
         #If the file doesn't exist load empty strings to show.
         except FileNotFoundError:
             self.currentScores = ['','','','','']

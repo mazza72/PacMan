@@ -1,6 +1,0 @@
-test2, 220
-test1, 20
-PlaceHolder, 0
-PlaceHolder, 0
-PlaceHolder, 0
-PlaceHolder, 0
